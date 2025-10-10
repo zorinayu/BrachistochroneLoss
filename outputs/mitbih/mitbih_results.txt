@@ -1,0 +1,26 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - MIT-BIH ARRHYTHMIA DATASET
+======================================================================
+
+Method                              Test Acc   Test F1    Time(s)   
+---------------------------------------------------------------------------
+Brachistochrone                     1.0000     1.0000     1.0       
+Brachistochrone (no L_path)         1.0000     1.0000     0.0       
+Brachistochrone (no L_mono)         1.0000     1.0000     0.0       
+Brachistochrone (no L_path+no L_mono) 1.0000     1.0000     0.0       
+AdamW                               1.0000     1.0000     0.0       
+Adam                                1.0000     1.0000     0.0       
+SGD                                 1.0000     1.0000     0.0       
+
+======================================================================
+
+BEST PERFORMANCE:
+--------------------
+Best Accuracy: Brachistochrone (1.0000)
+Best F1: Brachistochrone (1.0000)
+Fastest: Adam (0.0s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test Accuracy: 1.0000
+Test F1: 1.0000
+Training Time: 1.0s

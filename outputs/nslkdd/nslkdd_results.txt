@@ -1,0 +1,26 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - NSL-KDD DATASET
+============================================================
+
+Method                              Test Acc   Test F1    Time(s)   
+---------------------------------------------------------------------------
+Brachistochrone                     0.8850     0.8454     3.1       
+Brachistochrone (no L_path)         0.8860     0.8469     3.0       
+Brachistochrone (no L_mono)         0.8870     0.8478     6.0       
+Brachistochrone (no L_path+no L_mono) 0.8850     0.8453     6.4       
+AdamW                               0.8860     0.8486     4.4       
+Adam                                0.8860     0.8463     3.8       
+SGD                                 0.8850     0.8463     3.6       
+
+============================================================
+
+BEST PERFORMANCE:
+--------------------
+Best Accuracy: Brachistochrone (no L_mono) (0.8870)
+Best F1: AdamW (0.8486)
+Fastest: Brachistochrone (no L_path) (3.0s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test Accuracy: 0.8850
+Test F1: 0.8454
+Training Time: 3.1s

@@ -1,0 +1,26 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - SLEEP-EDFX DATASET
+======================================================================
+
+Method                              Test Acc   Test F1    Time(s)   
+---------------------------------------------------------------------------
+Brachistochrone                     0.7100     0.7066     4.9       
+Brachistochrone (no L_path)         0.6950     0.6897     4.7       
+Brachistochrone (no L_mono)         0.7025     0.6981     4.0       
+Brachistochrone (no L_path+no L_mono) 0.6950     0.6909     4.6       
+AdamW                               0.6950     0.6889     2.0       
+Adam                                0.6975     0.6947     1.8       
+SGD                                 0.7050     0.7010     2.0       
+
+======================================================================
+
+BEST PERFORMANCE:
+--------------------
+Best Accuracy: Brachistochrone (0.7100)
+Best F1: Brachistochrone (0.7066)
+Fastest: Adam (1.8s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test Accuracy: 0.7100
+Test F1: 0.7066
+Training Time: 4.9s
