@@ -26,8 +26,8 @@ pip install torch torchvision pandas scikit-learn matplotlib seaborn tqdm numpy
 ### Basic Usage
 
 ```python
-from src.brachlearn.losses.brachistochrone import BrachistochroneLoss
-from src.brachlearn.models.mlp import MLPClassifier
+from src.losses.brachistochrone import BrachistochroneLoss
+from src.models.mlp import MLPClassifier
 
 # Create model
 model = MLPClassifier(input_dim=784, hidden_dims=[256, 128], num_classes=10)

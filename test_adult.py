@@ -22,9 +22,9 @@ from tqdm import tqdm
 import zipfile
 
 # Import our modules
-from src.brachlearn.models.mlp import MLPClassifier
-from src.brachlearn.losses.brachistochrone import BrachistochroneLoss
-from src.brachlearn.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
+from src.models.mlp import MLPClassifier
+from src.losses.brachistochrone import BrachistochroneLoss
+from src.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
 
 def get_args():
     parser = argparse.ArgumentParser(description='Test BRACHISTOCHRONE on Adult Income dataset')
