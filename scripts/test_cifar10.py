@@ -4,10 +4,15 @@ Test BRACHISTOCHRONE method on CIFAR-10 dataset
 """
 
 import os
+import sys
 import json
 import time
 import argparse
 from datetime import datetime
+
+# Add parent directory to path to import src modules
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -23,9 +28,6 @@ import tarfile
 import pickle
 
 # Import our modules
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models.mlp import MLPClassifier
 from src.losses.brachistochrone import BrachistochroneLoss
 from src.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
@@ -43,30 +45,27 @@ class CIFAR10Dataset(torch.utils.data.Dataset):
         
         print("Loading CIFAR-10 dataset...")
         
-        # Check if the data directory exists directly
-        data_dir = 'data/cifar-10-batches-py'
-        if not os.path.exists(data_dir):
-            alt_paths = ['../data/cifar-10-batches-py', 'data/cifar-10-batches-py']
-            for alt_path in alt_paths:
-                if os.path.exists(alt_path):
-                    data_dir = alt_path
-                    break
-            else:
-                raise FileNotFoundError(f"CIFAR-10 data directory not found. Tried: {data_dir}")
+        # Load CIFAR-10 data directly from extracted directory
+        if not os.path.exists(data_path):
+            raise FileNotFoundError(f"CIFAR-10 data directory not found: {data_path}")
         
         # Load training data
-        train_files = [os.path.join(data_dir, 'data_batch_1'), os.path.join(data_dir, 'data_batch_2')]
+        train_files = [os.path.join(data_path, 'data_batch_1'), os.path.join(data_path, 'data_batch_2')]
         all_data = []
         all_labels = []
         
         for file_path in train_files:
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"Training batch file not found: {file_path}")
             with open(file_path, 'rb') as f:
                 batch = pickle.load(f, encoding='bytes')
                 all_data.append(batch[b'data'])
                 all_labels.extend(batch[b'labels'])
         
         # Load test data
-        test_file = os.path.join(data_dir, 'test_batch')
+        test_file = os.path.join(data_path, 'test_batch')
+        if not os.path.exists(test_file):
+            raise FileNotFoundError(f"Test batch file not found: {test_file}")
         with open(test_file, 'rb') as f:
             test_batch = pickle.load(f, encoding='bytes')
             test_data = test_batch[b'data']

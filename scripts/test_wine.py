@@ -4,10 +4,15 @@ Test BRACHISTOCHRONE method on Wine Quality dataset
 """
 
 import os
+import sys
 import json
 import time
 import argparse
 from datetime import datetime
+
+# Add parent directory to path to import src modules
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -22,9 +27,6 @@ from tqdm import tqdm
 import zipfile
 
 # Import our modules
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models.mlp import MLPClassifier
 from src.losses.brachistochrone import BrachistochroneLoss
 from src.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
@@ -42,19 +44,11 @@ class WineDataset(torch.utils.data.Dataset):
         
         print("Loading Wine Quality dataset...")
         
-        # Check if the CSV file exists directly
+        # Load Wine data directly from CSV
         if not os.path.exists(data_path):
-            # Try alternative paths
-            alt_paths = ['data/winequality-red.csv', '../data/winequality-red.csv']
-            for alt_path in alt_paths:
-                if os.path.exists(alt_path):
-                    data_path = alt_path
-                    break
-            else:
-                raise FileNotFoundError(f"Wine data file not found. Tried: {data_path}")
+            raise FileNotFoundError(f"Wine data file not found: {data_path}")
         
         print(f"Loading wine data from: {data_path}")
-        
         df = pd.read_csv(data_path, sep=';')
         
         # Check if this is red or white wine data

@@ -4,10 +4,15 @@ Test BRACHISTOCHRONE method on IMDB Movie Reviews dataset
 """
 
 import os
+import sys
 import json
 import time
 import argparse
 from datetime import datetime
+
+# Add parent directory to path to import src modules
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -24,9 +29,6 @@ import tarfile
 import re
 
 # Import our modules
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models.mlp import MLPClassifier
 from src.losses.brachistochrone import BrachistochroneLoss
 from src.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
@@ -56,23 +58,16 @@ class IMDBDataset(torch.utils.data.Dataset):
         
         print("Loading IMDB dataset...")
         
-        # Check if the data directory exists directly
-        data_dir = 'data/aclImdb'
-        if not os.path.exists(data_dir):
-            alt_paths = ['../data/aclImdb', 'data/aclImdb']
-            for alt_path in alt_paths:
-                if os.path.exists(alt_path):
-                    data_dir = alt_path
-                    break
-            else:
-                raise FileNotFoundError(f"IMDB data directory not found. Tried: {data_dir}")
+        # Extract and load IMDB data
+        with tarfile.open(data_path, 'r:gz') as tar:
+            tar.extractall('data/')
         
         # Load training data
         train_texts = []
         train_labels = []
         
         # Load positive reviews
-        pos_dir = os.path.join(data_dir, 'train', 'pos')
+        pos_dir = 'data/aclImdb/train/pos'
         if os.path.exists(pos_dir):
             for filename in os.listdir(pos_dir)[:sample_size//4 if sample_size else None]:
                 with open(os.path.join(pos_dir, filename), 'r', encoding='utf-8') as f:
@@ -82,7 +77,7 @@ class IMDBDataset(torch.utils.data.Dataset):
                         train_labels.append(1)
         
         # Load negative reviews
-        neg_dir = os.path.join(data_dir, 'train', 'neg')
+        neg_dir = 'data/aclImdb/train/neg'
         if os.path.exists(neg_dir):
             for filename in os.listdir(neg_dir)[:sample_size//4 if sample_size else None]:
                 with open(os.path.join(neg_dir, filename), 'r', encoding='utf-8') as f:
@@ -96,7 +91,7 @@ class IMDBDataset(torch.utils.data.Dataset):
         test_labels = []
         
         # Load positive test reviews
-        pos_test_dir = os.path.join(data_dir, 'test', 'pos')
+        pos_test_dir = 'data/aclImdb/test/pos'
         if os.path.exists(pos_test_dir):
             for filename in os.listdir(pos_test_dir)[:sample_size//8 if sample_size else None]:
                 with open(os.path.join(pos_test_dir, filename), 'r', encoding='utf-8') as f:
@@ -106,7 +101,7 @@ class IMDBDataset(torch.utils.data.Dataset):
                         test_labels.append(1)
         
         # Load negative test reviews
-        neg_test_dir = os.path.join(data_dir, 'test', 'neg')
+        neg_test_dir = 'data/aclImdb/test/neg'
         if os.path.exists(neg_test_dir):
             for filename in os.listdir(neg_test_dir)[:sample_size//8 if sample_size else None]:
                 with open(os.path.join(neg_test_dir, filename), 'r', encoding='utf-8') as f:

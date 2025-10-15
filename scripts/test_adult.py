@@ -4,10 +4,15 @@ Test BRACHISTOCHRONE method on Adult Income dataset
 """
 
 import os
+import sys
 import json
 import time
 import argparse
 from datetime import datetime
+
+# Add parent directory to path to import src modules
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -22,9 +27,6 @@ from tqdm import tqdm
 import zipfile
 
 # Import our modules
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models.mlp import MLPClassifier
 from src.losses.brachistochrone import BrachistochroneLoss
 from src.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
@@ -42,27 +44,12 @@ class AdultDataset(torch.utils.data.Dataset):
         
         print("Loading Adult Income dataset...")
         
-        # Check if the data files exist directly
+        # Load Adult data directly from files
         train_path = 'data/adult.data'
         test_path = 'data/adult.test'
         
-        # Try alternative paths if not found
-        if not os.path.exists(train_path):
-            alt_paths = ['../data/adult.data', 'data/adult.data']
-            for alt_path in alt_paths:
-                if os.path.exists(alt_path):
-                    train_path = alt_path
-                    break
-        
-        if not os.path.exists(test_path):
-            alt_paths = ['../data/adult.test', 'data/adult.test']
-            for alt_path in alt_paths:
-                if os.path.exists(alt_path):
-                    test_path = alt_path
-                    break
-        
         if not os.path.exists(train_path) or not os.path.exists(test_path):
-            raise FileNotFoundError(f"Adult data files not found. Tried: {train_path}, {test_path}")
+            raise FileNotFoundError(f"Adult data files not found: {train_path}, {test_path}")
         
         # Define column names
         columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 

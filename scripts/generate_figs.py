@@ -20,7 +20,7 @@ def save_both(fig: plt.Figure, filename: str, out_dirs: list[str]) -> None:
 
 
 def parse_results(outputs_root: str) -> pd.DataFrame:
-    """Parse Brachistochrone-only lines from known dataset result files."""
+    """Parse all method results from known dataset result files."""
     dataset_to_file = {
         "adult": os.path.join(outputs_root, "adult", "adult_results.txt"),
         "cifar10": os.path.join(outputs_root, "cifar10", "cifar10_results.txt"),
@@ -32,20 +32,37 @@ def parse_results(outputs_root: str) -> pd.DataFrame:
         if not os.path.exists(fp):
             continue
         with open(fp, "r", encoding="utf-8", errors="ignore") as f:
-            for line in f:
-                # Expect line like: "Brachistochrone     0.6900  0.5634  0.5  1 epoch"
-                if line.strip().startswith("Brachistochrone ") or line.strip() == "Brachistochrone":
+            lines = f.readlines()
+            # Skip header lines and find the data section
+            data_started = False
+            for line in lines:
+                line = line.strip()
+                if "Method" in line and "Test Acc" in line:
+                    data_started = True
+                    continue
+                if data_started and line.startswith("---"):
+                    continue
+                if data_started and line and not line.startswith("=") and not line.startswith("BEST") and not line.startswith("YOUR"):
+                    # Parse method result line
                     parts = line.split()
-                    # Be tolerant of spacing; try to extract floats in order
-                    floats = [p for p in parts if _is_float(p)]
-                    if len(floats) >= 3:
-                        acc, f1, time_s = map(float, floats[:3])
-                        records.append({
-                            "dataset": ds,
-                            "acc": acc,
-                            "f1": f1,
-                            "time_s": time_s,
-                        })
+                    if len(parts) >= 4:
+                        method_name = parts[0]
+                        # Extract floats (accuracy, f1, time)
+                        floats = [p for p in parts[1:] if _is_float(p)]
+                        if len(floats) >= 3:
+                            acc, f1, time_s = map(float, floats[:3])
+                            # Extract epoch info
+                            epoch_info = " ".join(parts[4:]) if len(parts) > 4 else "1 epoch"
+                            
+                            records.append({
+                                "dataset": ds,
+                                "method": method_name,
+                                "acc": acc,
+                                "f1": f1,
+                                "time_s": time_s,
+                                "epochs": epoch_info
+                            })
+                elif data_started and line.startswith("="):
                     break
     return pd.DataFrame.from_records(records)
 
@@ -61,31 +78,166 @@ def _is_float(s: str) -> bool:
 def plot_results_summary(df: pd.DataFrame, out_dirs: list[str]) -> None:
     if df.empty:
         return
+    
+    # Filter to show only the best performing method for each dataset
+    # Group by dataset and find the method with highest accuracy
+    best_results = df.loc[df.groupby('dataset')['acc'].idxmax()]
+    
     # Sort datasets in a consistent order
     order = ["adult", "cifar10", "imdb", "wine"]
-    df["dataset"] = pd.Categorical(df["dataset"], categories=order, ordered=True)
-    df = df.sort_values("dataset")
+    best_results["dataset"] = pd.Categorical(best_results["dataset"], categories=order, ordered=True)
+    best_results = best_results.sort_values("dataset")
 
-    x = np.arange(len(df))
+    x = np.arange(len(best_results))
     width = 0.28
 
-    fig, ax1 = plt.subplots(figsize=(7.0, 3.2))
-    b1 = ax1.bar(x - width/2, df["acc"].values, width, label="Accuracy", color="#2c7fb8")
-    b2 = ax1.bar(x + width/2, df["f1"].values, width, label="F1", color="#f03b20")
+    fig, ax1 = plt.subplots(figsize=(10.0, 4.0))
+    b1 = ax1.bar(x - width/2, best_results["acc"].values, width, label="Accuracy", color="#2c7fb8")
+    b2 = ax1.bar(x + width/2, best_results["f1"].values, width, label="F1", color="#f03b20")
     ax1.set_ylabel("Score")
     ax1.set_xticks(x)
-    ax1.set_xticklabels([s.upper() for s in df["dataset"].tolist()])
+    ax1.set_xticklabels([s.upper() for s in best_results["dataset"].tolist()])
     ax1.set_ylim(0.0, 1.0)
     ax1.legend(ncols=2, frameon=False)
     ax1.grid(axis="y", linestyle=":", alpha=0.4)
 
     ax2 = ax1.twinx()
-    ax2.plot(x, df["time_s"].values, marker="o", color="#636363", label="Time (s)")
+    ax2.plot(x, best_results["time_s"].values, marker="o", color="#636363", label="Time (s)")
     ax2.set_ylabel("Time (s)")
     ax2.legend(loc="upper right", frameon=False)
 
-    plt.title("Brachistochrone Results Summary")
+    plt.title("Best Method Results Summary by Dataset")
     save_both(fig, "results_summary.pdf", out_dirs)
+    plt.close(fig)
+    
+    # Create a detailed comparison chart
+    plot_detailed_comparison(df, out_dirs)
+
+
+def plot_detailed_comparison(df: pd.DataFrame, out_dirs: list[str]) -> None:
+    """Create detailed comparison charts for all methods across datasets."""
+    if df.empty:
+        return
+    
+    # Create separate charts for each dataset
+    datasets = df['dataset'].unique()
+    n_datasets = len(datasets)
+    
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    axes = axes.flatten()
+    
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
+    
+    for i, dataset in enumerate(datasets):
+        if i >= 4:  # Only show first 4 datasets
+            break
+            
+        dataset_data = df[df['dataset'] == dataset].copy()
+        
+        # Sort by accuracy descending
+        dataset_data = dataset_data.sort_values('acc', ascending=False)
+        
+        x = np.arange(len(dataset_data))
+        width = 0.35
+        
+        # Plot accuracy and F1
+        bars1 = axes[i].bar(x - width/2, dataset_data['acc'], width, 
+                           label='Accuracy', color=colors[0], alpha=0.8)
+        bars2 = axes[i].bar(x + width/2, dataset_data['f1'], width, 
+                           label='F1 Score', color=colors[1], alpha=0.8)
+        
+        axes[i].set_xlabel('Methods')
+        axes[i].set_ylabel('Score')
+        axes[i].set_title(f'{dataset.upper()} Dataset - Method Comparison')
+        axes[i].set_xticks(x)
+        axes[i].set_xticklabels([method.replace('_', '\n') for method in dataset_data['method']], 
+                               rotation=45, ha='right')
+        axes[i].set_ylim(0, 1)
+        axes[i].legend()
+        axes[i].grid(axis='y', alpha=0.3)
+        
+        # Add value labels on bars
+        for bar in bars1:
+            height = bar.get_height()
+            axes[i].text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                        f'{height:.3f}', ha='center', va='bottom', fontsize=8)
+        
+        for bar in bars2:
+            height = bar.get_height()
+            axes[i].text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                        f'{height:.3f}', ha='center', va='bottom', fontsize=8)
+    
+    plt.tight_layout()
+    save_both(fig, "detailed_comparison.pdf", out_dirs)
+    plt.close(fig)
+    
+    # Create method performance summary
+    plot_method_summary(df, out_dirs)
+
+
+def plot_method_summary(df: pd.DataFrame, out_dirs: list[str]) -> None:
+    """Create a summary chart showing average performance across datasets for each method."""
+    if df.empty:
+        return
+    
+    # Calculate average performance for each method across all datasets
+    method_stats = df.groupby('method').agg({
+        'acc': ['mean', 'std'],
+        'f1': ['mean', 'std'],
+        'time_s': ['mean', 'std']
+    }).round(3)
+    
+    # Flatten column names
+    method_stats.columns = ['acc_mean', 'acc_std', 'f1_mean', 'f1_std', 'time_mean', 'time_std']
+    method_stats = method_stats.reset_index()
+    
+    # Sort by average accuracy
+    method_stats = method_stats.sort_values('acc_mean', ascending=False)
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    
+    x = np.arange(len(method_stats))
+    width = 0.35
+    
+    # Plot accuracy and F1 with error bars
+    bars1 = ax1.bar(x - width/2, method_stats['acc_mean'], width, 
+                    yerr=method_stats['acc_std'], label='Accuracy', 
+                    color='#2c7fb8', alpha=0.8, capsize=5)
+    bars2 = ax1.bar(x + width/2, method_stats['f1_mean'], width, 
+                    yerr=method_stats['f1_std'], label='F1 Score', 
+                    color='#f03b20', alpha=0.8, capsize=5)
+    
+    ax1.set_xlabel('Methods')
+    ax1.set_ylabel('Score')
+    ax1.set_title('Average Performance Across All Datasets')
+    ax1.set_xticks(x)
+    ax1.set_xticklabels([method.replace('_', '\n') for method in method_stats['method']], 
+                       rotation=45, ha='right')
+    ax1.set_ylim(0, 1)
+    ax1.legend()
+    ax1.grid(axis='y', alpha=0.3)
+    
+    # Plot training time
+    bars3 = ax2.bar(x, method_stats['time_mean'], 
+                    yerr=method_stats['time_std'], 
+                    color='#33a02c', alpha=0.8, capsize=5)
+    
+    ax2.set_xlabel('Methods')
+    ax2.set_ylabel('Training Time (s)')
+    ax2.set_title('Average Training Time Across All Datasets')
+    ax2.set_xticks(x)
+    ax2.set_xticklabels([method.replace('_', '\n') for method in method_stats['method']], 
+                       rotation=45, ha='right')
+    ax2.grid(axis='y', alpha=0.3)
+    
+    # Add value labels
+    for bar in bars3:
+        height = bar.get_height()
+        ax2.text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                f'{height:.3f}', ha='center', va='bottom', fontsize=8)
+    
+    plt.tight_layout()
+    save_both(fig, "method_summary.pdf", out_dirs)
     plt.close(fig)
 
 
