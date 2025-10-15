@@ -1,0 +1,32 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - CIFAR-10 DATASET
+============================================================
+
+Method                              Test Acc   Test F1    Time(s)         Epochs    
+-------------------------------------------------------------------------------------
+Brachistochrone                     0.2050     0.1036     0.5             1 epoch   
+BrachistochroneAdam_1epochs         0.1750     0.0771     0.1             1 epoch   
+BrachistochroneAdam_2epochs         0.1750     0.1397     0.2             2 epochs  
+BrachistochroneAdam_3epochs         0.2600     0.2170     0.2             3 epochs  
+BrachistochroneSGD_1epochs          0.0850     0.0318     0.1             1 epoch   
+BrachistochroneSGD_2epochs          0.1150     0.0250     0.1             2 epochs  
+BrachistochroneSGD_3epochs          0.1300     0.0433     0.2             3 epochs  
+Adam_1epochs                        0.1050     0.0414     0.1             1 epoch   
+Adam_2epochs                        0.2100     0.1658     0.1             2 epochs  
+Adam_3epochs                        0.2350     0.2051     0.2             3 epochs  
+SGD_1epochs                         0.0750     0.0316     0.1             1 epoch   
+SGD_2epochs                         0.1200     0.0534     0.1             2 epochs  
+SGD_3epochs                         0.0850     0.0353     0.2             3 epochs  
+
+============================================================
+
+BEST PERFORMANCE:
+--------------------
+Best Accuracy: BrachistochroneAdam_3epochs (0.2600)
+Best F1: BrachistochroneAdam_3epochs (0.2170)
+Fastest: SGD_1epochs (0.1s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test Accuracy: 0.2050
+Test F1: 0.1036
+Training Time: 0.5s

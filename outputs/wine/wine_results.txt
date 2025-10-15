@@ -1,0 +1,32 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - WINE QUALITY DATASET
+============================================================
+
+Method                              Test Acc   Test F1    Time(s)         Epochs    
+-------------------------------------------------------------------------------------
+Brachistochrone                     0.8450     0.7740     0.4             1 epoch   
+BrachistochroneAdam_1epochs         0.8450     0.7740     0.0             1 epoch   
+BrachistochroneAdam_2epochs         0.8450     0.7740     0.1             2 epochs  
+BrachistochroneAdam_3epochs         0.8450     0.7740     0.2             3 epochs  
+BrachistochroneSGD_1epochs          0.8450     0.7740     0.1             1 epoch   
+BrachistochroneSGD_2epochs          0.7050     0.6988     0.1             2 epochs  
+BrachistochroneSGD_3epochs          0.3300     0.3433     0.1             3 epochs  
+Adam_1epochs                        0.8450     0.7740     0.0             1 epoch   
+Adam_2epochs                        0.8450     0.7740     0.1             2 epochs  
+Adam_3epochs                        0.8450     0.7740     0.1             3 epochs  
+SGD_1epochs                         0.7650     0.7856     0.0             1 epoch   
+SGD_2epochs                         0.4850     0.5401     0.1             2 epochs  
+SGD_3epochs                         0.6000     0.6507     0.1             3 epochs  
+
+============================================================
+
+BEST PERFORMANCE:
+--------------------
+Best Accuracy: Brachistochrone (0.8450)
+Best F1: SGD_1epochs (0.7856)
+Fastest: SGD_1epochs (0.0s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test Accuracy: 0.8450
+Test F1: 0.7740
+Training Time: 0.4s
