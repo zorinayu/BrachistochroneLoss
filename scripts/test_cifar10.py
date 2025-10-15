@@ -24,7 +24,6 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-import tarfile
 import pickle
 
 # Import our modules
