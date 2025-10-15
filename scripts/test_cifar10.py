@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test BRACHISTOCHRONE method on IMDB Movie Reviews dataset
+Test BRACHISTOCHRONE method on CIFAR-10 dataset
 """
 
 import os
@@ -18,107 +18,78 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm import tqdm
 import tarfile
-import re
+import pickle
 
 # Import our modules
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models.mlp import MLPClassifier
 from src.losses.brachistochrone import BrachistochroneLoss
 from src.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
 
 def get_args():
-    parser = argparse.ArgumentParser(description='Test BRACHISTOCHRONE on IMDB dataset')
+    parser = argparse.ArgumentParser(description='Test BRACHISTOCHRONE on CIFAR-10 dataset')
     parser.add_argument('--sample_size', type=int, default=5000, help='Sample size for testing')
     parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
-    parser.add_argument('--output_dir', type=str, default='outputs/imdb', help='Output directory')
+    parser.add_argument('--output_dir', type=str, default='outputs/cifar10', help='Output directory')
     return parser.parse_args()
 
-def clean_text(text):
-    """Clean text data"""
-    # Remove HTML tags
-    text = re.sub(r'<[^>]+>', '', text)
-    # Remove special characters and digits
-    text = re.sub(r'[^a-zA-Z\s]', '', text)
-    # Convert to lowercase
-    text = text.lower()
-    # Remove extra whitespace
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
-
-class IMDBDataset(torch.utils.data.Dataset):
-    def __init__(self, data_path='data/aclImdb_v1.tar.gz', sample_size=None, test_size=0.2, random_state=42):
+class CIFAR10Dataset(torch.utils.data.Dataset):
+    def __init__(self, data_path='data/cifar-10-batches-py', sample_size=None, test_size=0.2, random_state=42):
         
-        print("Loading IMDB dataset...")
+        print("Loading CIFAR-10 dataset...")
         
-        # Extract and load IMDB data
-        with tarfile.open(data_path, 'r:gz') as tar:
-            tar.extractall('data/')
+        # Check if the data directory exists directly
+        data_dir = 'data/cifar-10-batches-py'
+        if not os.path.exists(data_dir):
+            alt_paths = ['../data/cifar-10-batches-py', 'data/cifar-10-batches-py']
+            for alt_path in alt_paths:
+                if os.path.exists(alt_path):
+                    data_dir = alt_path
+                    break
+            else:
+                raise FileNotFoundError(f"CIFAR-10 data directory not found. Tried: {data_dir}")
         
         # Load training data
-        train_texts = []
-        train_labels = []
+        train_files = [os.path.join(data_dir, 'data_batch_1'), os.path.join(data_dir, 'data_batch_2')]
+        all_data = []
+        all_labels = []
         
-        # Load positive reviews
-        pos_dir = 'data/aclImdb/train/pos'
-        if os.path.exists(pos_dir):
-            for filename in os.listdir(pos_dir)[:sample_size//4 if sample_size else None]:
-                with open(os.path.join(pos_dir, filename), 'r', encoding='utf-8') as f:
-                    text = clean_text(f.read())
-                    if text:
-                        train_texts.append(text)
-                        train_labels.append(1)
-        
-        # Load negative reviews
-        neg_dir = 'data/aclImdb/train/neg'
-        if os.path.exists(neg_dir):
-            for filename in os.listdir(neg_dir)[:sample_size//4 if sample_size else None]:
-                with open(os.path.join(neg_dir, filename), 'r', encoding='utf-8') as f:
-                    text = clean_text(f.read())
-                    if text:
-                        train_texts.append(text)
-                        train_labels.append(0)
+        for file_path in train_files:
+            with open(file_path, 'rb') as f:
+                batch = pickle.load(f, encoding='bytes')
+                all_data.append(batch[b'data'])
+                all_labels.extend(batch[b'labels'])
         
         # Load test data
-        test_texts = []
-        test_labels = []
+        test_file = os.path.join(data_dir, 'test_batch')
+        with open(test_file, 'rb') as f:
+            test_batch = pickle.load(f, encoding='bytes')
+            test_data = test_batch[b'data']
+            test_labels = test_batch[b'labels']
         
-        # Load positive test reviews
-        pos_test_dir = 'data/aclImdb/test/pos'
-        if os.path.exists(pos_test_dir):
-            for filename in os.listdir(pos_test_dir)[:sample_size//8 if sample_size else None]:
-                with open(os.path.join(pos_test_dir, filename), 'r', encoding='utf-8') as f:
-                    text = clean_text(f.read())
-                    if text:
-                        test_texts.append(text)
-                        test_labels.append(1)
-        
-        # Load negative test reviews
-        neg_test_dir = 'data/aclImdb/test/neg'
-        if os.path.exists(neg_test_dir):
-            for filename in os.listdir(neg_test_dir)[:sample_size//8 if sample_size else None]:
-                with open(os.path.join(neg_test_dir, filename), 'r', encoding='utf-8') as f:
-                    text = clean_text(f.read())
-                    if text:
-                        test_texts.append(text)
-                        test_labels.append(0)
-        
-        if not train_texts or not test_texts:
-            raise ValueError("No data loaded from IMDB dataset")
-        
-        # Vectorize text using TF-IDF
-        print("Vectorizing text data...")
-        vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
-        
-        # Fit on training data
-        X_train = vectorizer.fit_transform(train_texts).toarray()
-        y_train = np.array(train_labels)
-        
-        # Transform test data
-        X_test = vectorizer.transform(test_texts).toarray()
+        # Combine and reshape data
+        X_train = np.vstack(all_data).astype(np.float32) / 255.0  # Normalize to [0,1]
+        y_train = np.array(all_labels)
+        X_test = test_data.astype(np.float32) / 255.0
         y_test = np.array(test_labels)
+        
+        # Sample data if specified
+        if sample_size:
+            # Sample training data
+            train_indices = np.random.choice(len(X_train), min(sample_size, len(X_train)), replace=False)
+            X_train = X_train[train_indices]
+            y_train = y_train[train_indices]
+            
+            # Sample test data proportionally
+            test_sample_size = min(sample_size // 5, len(X_test))
+            test_indices = np.random.choice(len(X_test), test_sample_size, replace=False)
+            X_test = X_test[test_indices]
+            y_test = y_test[test_indices]
         
         # Convert to tensors
         self.X_train = torch.tensor(X_train, dtype=torch.float32)
@@ -127,16 +98,14 @@ class IMDBDataset(torch.utils.data.Dataset):
         self.y_test = torch.tensor(y_test, dtype=torch.long)
         
         self.n_features = X_train.shape[1]
-        self.n_classes = 2
+        self.n_classes = 10
         
-        print(f"IMDB Dataset: {len(self.X_train)} train, {len(self.X_test)} test")
+        print(f"CIFAR-10 Dataset: {len(self.X_train)} train, {len(self.X_test)} test")
         print(f"Features: {self.n_features}, Classes: {self.n_classes}")
 
 def train_model(model, train_loader, val_loader, epochs, device, brach_loss=None, optimizer_type='adamw'):
     """Train model with or without BRACHISTOCHRONE loss"""
-    if optimizer_type == 'mtng':
-        optimizer = MTNG(model.parameters(), lr=0.001)
-    elif optimizer_type == 'adamw':
+    if optimizer_type == 'adamw':
         optimizer = AdamW(model.parameters(), lr=0.001)
     elif optimizer_type == 'adam':
         optimizer = Adam(model.parameters(), lr=0.001)
@@ -157,62 +126,36 @@ def train_model(model, train_loader, val_loader, epochs, device, brach_loss=None
         model.train()
         epoch_loss = 0
         
-        if optimizer_type == 'mtng':
-            # MTNG optimizer - simplified approach
+        for x, y in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}", leave=False):
+            x, y = x.to(device), y.to(device)
+            
             optimizer.zero_grad()
-            total_loss = 0
-            for x, y in train_loader:
-                x, y = x.to(device), y.to(device)
-                logits = model(x)
-                task_loss = criterion(logits, y)
+            logits = model(x)
+            task_loss = criterion(logits, y)
+            
+            # Calculate BRACHISTOCHRONE loss
+            if brach_loss is not None:
+                # For image data, use flattened features
+                batch_size = x.shape[0]
+                x_flat = x.view(batch_size, -1)
+                logits_flat = logits.view(batch_size, -1)
                 
-                # Calculate BRACHISTOCHRONE loss
-                if brach_loss is not None and brach_loss != 'mtng':
-                    batch_size = x.shape[0]
-                    x_flat = x.view(batch_size, -1)
-                    logits_flat = logits.view(batch_size, -1)
-                    
+                if isinstance(brach_loss, (BrachistochroneAdam, BrachistochroneSGD)):
+                    # Use improved version with intermediate features
                     h_list = [x_flat, logits_flat]
                     L_path, L_mono = brach_loss(h_list)
-                    total_loss += task_loss + L_path + L_mono
+                    total_loss = task_loss + L_path + L_mono
                 else:
-                    total_loss += task_loss
+                    # Use original version
+                    h_list = [x_flat, logits_flat]
+                    L_path, L_mono = brach_loss(h_list)
+                    total_loss = task_loss + L_path + L_mono
+            else:
+                total_loss = task_loss
             
             total_loss.backward()
             optimizer.step()
-            epoch_loss = total_loss.item()
-        else:
-            # Standard optimizers
-            for x, y in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}", leave=False):
-                x, y = x.to(device), y.to(device)
-                
-                optimizer.zero_grad()
-                logits = model(x)
-                task_loss = criterion(logits, y)
-                
-                # Calculate BRACHISTOCHRONE loss
-                if brach_loss is not None:
-                    # For text data, use flattened features
-                    batch_size = x.shape[0]
-                    x_flat = x.view(batch_size, -1)
-                    logits_flat = logits.view(batch_size, -1)
-                    
-                    if isinstance(brach_loss, (BrachistochroneAdam, BrachistochroneSGD)):
-                        # Use improved version
-                        h_list = [x_flat, logits_flat]
-                        L_path, L_mono = brach_loss(h_list)
-                        total_loss = task_loss + L_path + L_mono
-                    else:
-                        # Use original version
-                        h_list = [x_flat, logits_flat]
-                        L_path, L_mono = brach_loss(h_list)
-                        total_loss = task_loss + L_path + L_mono
-                else:
-                    total_loss = task_loss
-                
-                total_loss.backward()
-                optimizer.step()
-                epoch_loss += total_loss.item()
+            epoch_loss += total_loss.item()
         
         train_losses.append(epoch_loss / len(train_loader))
         
@@ -261,14 +204,14 @@ def evaluate_model(model, test_loader, device):
     
     return accuracy, f1
 
-def test_imdb_dataset(sample_size, epochs, batch_size, device, output_dir):
-    """Test all methods on IMDB dataset"""
+def test_cifar10_dataset(sample_size, epochs, batch_size, device, output_dir):
+    """Test all methods on CIFAR-10 dataset"""
     print("=" * 60)
-    print("TESTING IMDB DATASET")
+    print("TESTING CIFAR-10 DATASET")
     print("=" * 60)
     
     # Load dataset
-    dataset = IMDBDataset(sample_size=sample_size)
+    dataset = CIFAR10Dataset(sample_size=sample_size)
     
     # Create data loaders
     train_dataset = torch.utils.data.TensorDataset(dataset.X_train, dataset.y_train)
@@ -314,7 +257,7 @@ def test_imdb_dataset(sample_size, epochs, batch_size, device, output_dir):
                 print(f"  Running {epoch_count} epoch(s)...")
                 
                 # Create model
-                model = MLPClassifier(dataset.n_features, [256, 128], dataset.n_classes).to(device)
+                model = MLPClassifier(dataset.n_features, [512, 256], dataset.n_classes).to(device)
                 
                 # Determine optimizer type
                 if method_name == 'BrachistochroneAdam':
@@ -349,7 +292,7 @@ def test_imdb_dataset(sample_size, epochs, batch_size, device, output_dir):
         else:
             # Single epoch for Brachistochrone methods
             # Create model
-            model = MLPClassifier(dataset.n_features, [256, 128], dataset.n_classes).to(device)
+            model = MLPClassifier(dataset.n_features, [512, 256], dataset.n_classes).to(device)
             
             # Determine optimizer type
             optimizer_type = 'adamw'
@@ -378,8 +321,8 @@ def save_numerical_summary(results, output_dir):
     """Save numerical summary"""
     os.makedirs(output_dir, exist_ok=True)
     
-    with open(os.path.join(output_dir, 'imdb_results.txt'), 'w') as f:
-        f.write("BRACHISTOCHRONE METHOD TEST RESULTS - IMDB DATASET\n")
+    with open(os.path.join(output_dir, 'cifar10_results.txt'), 'w') as f:
+        f.write("BRACHISTOCHRONE METHOD TEST RESULTS - CIFAR-10 DATASET\n")
         f.write("=" * 60 + "\n\n")
         
         f.write(f"{'Method':<35} {'Test Acc':<10} {'Test F1':<10} {'Time(s)':<15} {'Epochs':<10}\n")
@@ -422,7 +365,7 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name(0)} ({torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB)")
     
     # Test dataset
-    results = test_imdb_dataset(
+    results = test_cifar10_dataset(
         args.sample_size, args.epochs, 
         args.batch_size, device, args.output_dir
     )

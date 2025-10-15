@@ -22,6 +22,9 @@ from tqdm import tqdm
 import zipfile
 
 # Import our modules
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models.mlp import MLPClassifier
 from src.losses.brachistochrone import BrachistochroneLoss
 from src.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
@@ -35,29 +38,24 @@ def get_args():
     return parser.parse_args()
 
 class WineDataset(torch.utils.data.Dataset):
-    def __init__(self, data_path='data/wine+quality.zip', sample_size=None, test_size=0.2, random_state=42):
+    def __init__(self, data_path='data/winequality-red.csv', sample_size=None, test_size=0.2, random_state=42):
         
         print("Loading Wine Quality dataset...")
         
-        # Extract and load Wine data
-        with zipfile.ZipFile(data_path, 'r') as zip_ref:
-            zip_ref.extractall('data/')
+        # Check if the CSV file exists directly
+        if not os.path.exists(data_path):
+            # Try alternative paths
+            alt_paths = ['data/winequality-red.csv', '../data/winequality-red.csv']
+            for alt_path in alt_paths:
+                if os.path.exists(alt_path):
+                    data_path = alt_path
+                    break
+            else:
+                raise FileNotFoundError(f"Wine data file not found. Tried: {data_path}")
         
-        # Look for wine quality files
-        wine_files = []
-        for root, dirs, files in os.walk('data'):
-            for file in files:
-                if 'wine' in file.lower() and file.endswith('.csv'):
-                    wine_files.append(os.path.join(root, file))
+        print(f"Loading wine data from: {data_path}")
         
-        if not wine_files:
-            raise ValueError("No wine quality CSV files found")
-        
-        # Load the first wine file found
-        wine_file = wine_files[0]
-        print(f"Loading wine data from: {wine_file}")
-        
-        df = pd.read_csv(wine_file, sep=';')
+        df = pd.read_csv(data_path, sep=';')
         
         # Check if this is red or white wine data
         if 'quality' in df.columns:

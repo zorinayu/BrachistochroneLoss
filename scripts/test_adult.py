@@ -22,6 +22,9 @@ from tqdm import tqdm
 import zipfile
 
 # Import our modules
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models.mlp import MLPClassifier
 from src.losses.brachistochrone import BrachistochroneLoss
 from src.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
@@ -35,17 +38,31 @@ def get_args():
     return parser.parse_args()
 
 class AdultDataset(torch.utils.data.Dataset):
-    def __init__(self, data_path='data/adult.zip', sample_size=None, test_size=0.2, random_state=42):
+    def __init__(self, data_path='data/adult.data', sample_size=None, test_size=0.2, random_state=42):
         
         print("Loading Adult Income dataset...")
         
-        # Extract and load Adult data
-        with zipfile.ZipFile(data_path, 'r') as zip_ref:
-            zip_ref.extractall('data/')
-        
-        # Load training data
+        # Check if the data files exist directly
         train_path = 'data/adult.data'
         test_path = 'data/adult.test'
+        
+        # Try alternative paths if not found
+        if not os.path.exists(train_path):
+            alt_paths = ['../data/adult.data', 'data/adult.data']
+            for alt_path in alt_paths:
+                if os.path.exists(alt_path):
+                    train_path = alt_path
+                    break
+        
+        if not os.path.exists(test_path):
+            alt_paths = ['../data/adult.test', 'data/adult.test']
+            for alt_path in alt_paths:
+                if os.path.exists(alt_path):
+                    test_path = alt_path
+                    break
+        
+        if not os.path.exists(train_path) or not os.path.exists(test_path):
+            raise FileNotFoundError(f"Adult data files not found. Tried: {train_path}, {test_path}")
         
         # Define column names
         columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 

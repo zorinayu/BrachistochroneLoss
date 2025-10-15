@@ -3,30 +3,30 @@ BRACHISTOCHRONE METHOD TEST RESULTS - ADULT INCOME DATASET
 
 Method                              Test Acc   Test F1    Time(s)         Epochs    
 -------------------------------------------------------------------------------------
-Brachistochrone                     0.6900     0.5634     0.5             1 epoch   
-BrachistochroneAdam_1epochs         0.6900     0.5634     0.1             1 epoch   
-BrachistochroneAdam_2epochs         0.6900     0.5634     0.2             2 epochs  
-BrachistochroneAdam_3epochs         0.7600     0.7248     0.2             3 epochs  
-BrachistochroneSGD_1epochs          0.6900     0.5634     0.1             1 epoch   
-BrachistochroneSGD_2epochs          0.6050     0.5591     0.1             2 epochs  
-BrachistochroneSGD_3epochs          0.7050     0.6901     0.2             3 epochs  
-Adam_1epochs                        0.6900     0.5634     0.0             1 epoch   
-Adam_2epochs                        0.6900     0.5634     0.1             2 epochs  
-Adam_3epochs                        0.7900     0.7732     0.1             3 epochs  
-SGD_1epochs                         0.3000     0.1596     0.0             1 epoch   
-SGD_2epochs                         0.6900     0.5634     0.1             2 epochs  
-SGD_3epochs                         0.6350     0.5883     0.1             3 epochs  
+Brachistochrone                     0.8500     0.7811     0.4             1 epoch   
+BrachistochroneAdam_1epochs         0.8500     0.7811     0.0             1 epoch   
+BrachistochroneAdam_2epochs         0.7500     0.7286     0.0             2 epochs  
+BrachistochroneAdam_3epochs         0.8500     0.7811     0.0             3 epochs  
+BrachistochroneSGD_1epochs          0.8000     0.8187     0.0             1 epoch   
+BrachistochroneSGD_2epochs          0.8500     0.7811     0.0             2 epochs  
+BrachistochroneSGD_3epochs          0.4000     0.4857     0.0             3 epochs  
+Adam_1epochs                        0.9500     0.9457     0.0             1 epoch   
+Adam_2epochs                        0.8500     0.7811     0.0             2 epochs  
+Adam_3epochs                        0.8500     0.7811     0.0             3 epochs  
+SGD_1epochs                         0.5500     0.6032     0.0             1 epoch   
+SGD_2epochs                         0.7500     0.7286     0.0             2 epochs  
+SGD_3epochs                         0.8500     0.7811     0.0             3 epochs  
 
 ============================================================
 
 BEST PERFORMANCE:
 --------------------
-Best Accuracy: Adam_3epochs (0.7900)
-Best F1: Adam_3epochs (0.7732)
+Best Accuracy: Adam_1epochs (0.9500)
+Best F1: Adam_1epochs (0.9457)
 Fastest: SGD_1epochs (0.0s)
 
 YOUR BRACHISTOCHRONE METHOD:
 ------------------------------
-Test Accuracy: 0.6900
-Test F1: 0.5634
-Training Time: 0.5s
+Test Accuracy: 0.8500
+Test F1: 0.7811
+Training Time: 0.4s
