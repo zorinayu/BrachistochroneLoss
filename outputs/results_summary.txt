@@ -1,0 +1,52 @@
+BEST METHOD RESULTS SUMMARY - DETAILED DATA
+============================================================
+
+CHART DESCRIPTION:
+This chart shows the best performing method for each dataset based on accuracy.
+The bar chart displays accuracy (blue) and F1 score (red) for each dataset.
+The line plot shows training time in seconds.
+
+DETAILED VALUES:
+----------------------------------------
+
+ADULT Dataset:
+  Best Method: BrachistochroneAdam_2epochs
+  Accuracy: 0.8000 (80.00%)
+  F1 Score: 0.7625 (76.25%)
+  Training Time: 0.000 seconds
+  Epochs: 2 epochs
+
+CIFAR10 Dataset:
+  Best Method: BrachistochroneSGD_2epochs
+  Accuracy: 0.1500 (15.00%)
+  F1 Score: 0.0569 (5.69%)
+  Training Time: 0.000 seconds
+  Epochs: 2 epochs
+
+IMDB Dataset:
+  Best Method: Brachistochrone
+  Accuracy: 0.5000 (50.00%)
+  F1 Score: 0.3333 (33.33%)
+  Training Time: 0.400 seconds
+  Epochs: 1 epoch
+
+WINE Dataset:
+  Best Method: BrachistochroneAdam_2epochs
+  Accuracy: 0.9500 (95.00%)
+  F1 Score: 0.9423 (94.23%)
+  Training Time: 0.000 seconds
+  Epochs: 2 epochs
+
+STATISTICAL SUMMARY:
+----------------------------------------
+Average Accuracy: 0.6000 (60.00%)
+Average F1 Score: 0.5237 (52.37%)
+Average Training Time: 0.100 seconds
+Total Methods Tested: 13
+Total Datasets: 4
+
+METHOD DISTRIBUTION:
+----------------------------------------
+BrachistochroneAdam_2epochs: 2 dataset(s)
+BrachistochroneSGD_2epochs: 1 dataset(s)
+Brachistochrone: 1 dataset(s)

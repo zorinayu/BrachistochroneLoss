@@ -1,0 +1,22 @@
+METHOD OVERVIEW - SCHEMATIC QUANTITATIVE ANALYSIS
+============================================================
+
+CHART DESCRIPTION:
+This chart provides a schematic overview of the Brachistochrone method.
+Shows energy transformation E(h₀) → E(h₁) and speed field v(h₀).
+Illustrates the core principle of energy-speed relationship.
+
+MATHEMATICAL RELATIONSHIPS:
+----------------------------------------
+Energy Range: E₀ ∈ [0.2, 2.0]
+Speed Formula: v₀ = √(2αE₀ + ε)
+Energy Improvement: E₁ = max(E₀ - 0.4 - 0.2sin(θ), ε)
+Parameters: α = 1.0, ε = 1e-6
+
+INTERPRETATION:
+----------------------------------------
+• Higher initial energy leads to higher initial speed
+• Energy decreases in a controlled manner
+• Speed adapts to current energy level
+• The method balances speed and precision
+• Shows the 'accelerate-then-refine' principle visually

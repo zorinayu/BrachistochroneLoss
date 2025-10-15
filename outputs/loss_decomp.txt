@@ -1,0 +1,40 @@
+LOSS DECOMPOSITION - SYNTHETIC BATCH ANALYSIS
+============================================================
+
+CHART DESCRIPTION:
+This chart shows the decomposition of Brachistochrone loss into two components.
+Blue bar (L_path): Path loss - measures energy change relative to speed.
+Orange bar (L_mono): Monotonicity loss - penalizes energy increases.
+
+MATHEMATICAL FORMULATION:
+----------------------------------------
+L_path = mean(|E₁ - E₀| / (v₀ + ε))
+L_mono = mean(ReLU(E₁ - E₀))
+where v₀ = √(2αE₀ + ε)
+
+SIMULATION PARAMETERS:
+----------------------------------------
+Batch Size: 256
+Alpha (α): 1.0
+Epsilon (ε): 1e-06
+Random Seed: 1337 (for reproducibility)
+
+CALCULATED VALUES:
+----------------------------------------
+L_path: 0.164836
+L_mono: 0.000000
+Total Loss: 0.164836
+
+STATISTICAL SUMMARY:
+----------------------------------------
+E₀ mean: 1.1044 ± 0.1930
+E₁ mean: 0.8622 ± 0.2335
+Energy change: -0.2421
+v₀ mean: 1.4803 ± 0.1326
+
+INTERPRETATION:
+----------------------------------------
+• L_path measures how much energy changes relative to current speed
+• L_mono ensures energy decreases monotonically (no increases)
+• Lower values indicate better optimization behavior
+• The ratio L_path/L_mono shows the balance between path and monotonicity

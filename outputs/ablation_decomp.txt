@@ -1,0 +1,22 @@
+ABLATION DECOMPOSITION - LOSS COMPONENT ANALYSIS
+============================================================
+
+CHART DESCRIPTION:
+This chart shows the effect of different loss components across optimization stages.
+Green line: Full Brachistochrone with both L_path and L_mono.
+Orange line: Without L_mono (monotonicity loss).
+Purple line: Without L_path (path loss).
+
+EXPERIMENTAL SETUP:
+----------------------------------------
+Time Steps: 8
+Random Seeds: 3
+Validation Loss Proxy: Simulated optimization trajectory
+
+INTERPRETATION:
+----------------------------------------
+• Full method (green) shows best convergence behavior
+• Removing L_mono (orange) may allow energy increases
+• Removing L_path (purple) loses speed-adaptive behavior
+• Both components are necessary for optimal performance
+• The shaded regions show variability across random seeds

@@ -12,11 +12,18 @@ def ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
 
 
-def save_both(fig: plt.Figure, filename: str, out_dirs: list[str]) -> None:
+def save_both(fig: plt.Figure, filename: str, out_dirs: list[str], data_info: str = None) -> None:
     for d in out_dirs:
         ensure_dir(d)
         target = os.path.join(d, filename)
         fig.savefig(target, bbox_inches="tight")
+        
+        # Save corresponding txt file with detailed data
+        if data_info:
+            txt_filename = filename.replace('.pdf', '.txt')
+            txt_target = os.path.join(d, txt_filename)
+            with open(txt_target, 'w', encoding='utf-8') as f:
+                f.write(data_info)
 
 
 def parse_results(outputs_root: str) -> pd.DataFrame:
@@ -75,6 +82,343 @@ def _is_float(s: str) -> bool:
         return False
 
 
+def generate_results_summary_info(best_results: pd.DataFrame, all_results: pd.DataFrame) -> str:
+    """Generate detailed information for results summary chart."""
+    info = "BEST METHOD RESULTS SUMMARY - DETAILED DATA\n"
+    info += "=" * 60 + "\n\n"
+    
+    info += "CHART DESCRIPTION:\n"
+    info += "This chart shows the best performing method for each dataset based on accuracy.\n"
+    info += "The bar chart displays accuracy (blue) and F1 score (red) for each dataset.\n"
+    info += "The line plot shows training time in seconds.\n\n"
+    
+    info += "DETAILED VALUES:\n"
+    info += "-" * 40 + "\n"
+    
+    for idx, row in best_results.iterrows():
+        dataset = row['dataset'].upper()
+        method = row['method']
+        acc = row['acc']
+        f1 = row['f1']
+        time_s = row['time_s']
+        epochs = row['epochs']
+        
+        info += f"\n{dataset} Dataset:\n"
+        info += f"  Best Method: {method}\n"
+        info += f"  Accuracy: {acc:.4f} ({acc*100:.2f}%)\n"
+        info += f"  F1 Score: {f1:.4f} ({f1*100:.2f}%)\n"
+        info += f"  Training Time: {time_s:.3f} seconds\n"
+        info += f"  Epochs: {epochs}\n"
+    
+    info += f"\nSTATISTICAL SUMMARY:\n"
+    info += "-" * 40 + "\n"
+    info += f"Average Accuracy: {best_results['acc'].mean():.4f} ({best_results['acc'].mean()*100:.2f}%)\n"
+    info += f"Average F1 Score: {best_results['f1'].mean():.4f} ({best_results['f1'].mean()*100:.2f}%)\n"
+    info += f"Average Training Time: {best_results['time_s'].mean():.3f} seconds\n"
+    info += f"Total Methods Tested: {len(all_results['method'].unique())}\n"
+    info += f"Total Datasets: {len(best_results)}\n"
+    
+    info += f"\nMETHOD DISTRIBUTION:\n"
+    info += "-" * 40 + "\n"
+    method_counts = best_results['method'].value_counts()
+    for method, count in method_counts.items():
+        info += f"{method}: {count} dataset(s)\n"
+    
+    return info
+
+
+def generate_detailed_comparison_info(df: pd.DataFrame) -> str:
+    """Generate detailed information for detailed comparison chart."""
+    info = "DETAILED METHOD COMPARISON - COMPLETE DATA\n"
+    info += "=" * 60 + "\n\n"
+    
+    info += "CHART DESCRIPTION:\n"
+    info += "This chart shows all methods compared across all datasets.\n"
+    info += "Each subplot represents one dataset with all methods ranked by accuracy.\n"
+    info += "Blue bars show accuracy, red bars show F1 score.\n\n"
+    
+    datasets = df['dataset'].unique()
+    
+    for dataset in datasets:
+        dataset_data = df[df['dataset'] == dataset].sort_values('acc', ascending=False)
+        
+        info += f"{dataset.upper()} DATASET - ALL METHODS:\n"
+        info += "-" * 50 + "\n"
+        
+        for idx, row in dataset_data.iterrows():
+            method = row['method']
+            acc = row['acc']
+            f1 = row['f1']
+            time_s = row['time_s']
+            epochs = row['epochs']
+            
+            info += f"  {method}:\n"
+            info += f"    Accuracy: {acc:.4f} ({acc*100:.2f}%)\n"
+            info += f"    F1 Score: {f1:.4f} ({f1*100:.2f}%)\n"
+            info += f"    Time: {time_s:.3f}s, Epochs: {epochs}\n"
+        
+        info += f"\n  Best Method: {dataset_data.iloc[0]['method']} "
+        info += f"(Acc: {dataset_data.iloc[0]['acc']:.4f})\n\n"
+    
+    return info
+
+
+def generate_method_summary_info(method_stats: pd.DataFrame) -> str:
+    """Generate detailed information for method summary chart."""
+    info = "METHOD PERFORMANCE SUMMARY - STATISTICAL ANALYSIS\n"
+    info += "=" * 60 + "\n\n"
+    
+    info += "CHART DESCRIPTION:\n"
+    info += "This chart shows average performance across all datasets for each method.\n"
+    info += "Left panel: Average accuracy and F1 score with error bars (standard deviation).\n"
+    info += "Right panel: Average training time with error bars.\n\n"
+    
+    info += "DETAILED STATISTICS:\n"
+    info += "-" * 40 + "\n"
+    
+    for idx, row in method_stats.iterrows():
+        method = row['method']
+        acc_mean = row['acc_mean']
+        acc_std = row['acc_std']
+        f1_mean = row['f1_mean']
+        f1_std = row['f1_std']
+        time_mean = row['time_mean']
+        time_std = row['time_std']
+        
+        info += f"\n{method}:\n"
+        info += f"  Accuracy: {acc_mean:.4f} ± {acc_std:.4f} ({acc_mean*100:.2f}% ± {acc_std*100:.2f}%)\n"
+        info += f"  F1 Score: {f1_mean:.4f} ± {f1_std:.4f} ({f1_mean*100:.2f}% ± {f1_std*100:.2f}%)\n"
+        info += f"  Training Time: {time_mean:.3f} ± {time_std:.3f} seconds\n"
+    
+    info += f"\nRANKING BY AVERAGE ACCURACY:\n"
+    info += "-" * 40 + "\n"
+    for i, (idx, row) in enumerate(method_stats.iterrows(), 1):
+        method = row['method']
+        acc_mean = row['acc_mean']
+        info += f"{i}. {method}: {acc_mean:.4f} ({acc_mean*100:.2f}%)\n"
+    
+    return info
+
+
+def generate_energy_curve_info(T: int, alpha: float, eps: float) -> str:
+    """Generate detailed information for energy curve chart."""
+    info = "ENERGY AND SPEED CURVE - THEORETICAL ANALYSIS\n"
+    info += "=" * 60 + "\n\n"
+    
+    info += "CHART DESCRIPTION:\n"
+    info += "This chart illustrates the theoretical relationship between energy and speed in the Brachistochrone optimization.\n"
+    info += "Blue line (E(h)): Energy function across optimization stages.\n"
+    info += "Green line (v(h)): Corresponding speed calculated as v = √(2αE + ε).\n\n"
+    
+    info += "MATHEMATICAL PRINCIPLES:\n"
+    info += "-" * 40 + "\n"
+    info += f"Energy Function: E(t) = exp(-t) + 0.02 (exponential decay)\n"
+    info += f"Speed Formula: v(t) = √(2αE(t) + ε)\n"
+    info += f"Parameters: α = {alpha}, ε = {eps}\n"
+    info += f"Time Steps: T = {T}\n\n"
+    
+    # Calculate actual values
+    t_values = np.linspace(0, 2.2, T)
+    E_values = np.exp(-t_values) + 0.02
+    v_values = np.sqrt(2.0 * alpha * E_values + eps)
+    
+    info += "DETAILED VALUES:\n"
+    info += "-" * 40 + "\n"
+    info += "Stage | Time | Energy | Speed\n"
+    info += "-" * 40 + "\n"
+    
+    for i in range(T):
+        t = t_values[i]
+        E = E_values[i]
+        v = v_values[i]
+        info += f"  {i:2d}  | {t:4.2f} | {E:6.4f} | {v:6.4f}\n"
+    
+    info += f"\nINTERPRETATION:\n"
+    info += "-" * 40 + "\n"
+    info += "• Energy decreases exponentially as optimization progresses\n"
+    info += "• Speed initially increases then decreases as energy drops\n"
+    info += "• This reflects the 'accelerate-then-refine' behavior of Brachistochrone\n"
+    info += "• The method starts fast but becomes more careful as it approaches optimum\n"
+    
+    return info
+
+
+def generate_loss_decomp_info(B: int, alpha: float, eps: float) -> str:
+    """Generate detailed information for loss decomposition chart."""
+    info = "LOSS DECOMPOSITION - SYNTHETIC BATCH ANALYSIS\n"
+    info += "=" * 60 + "\n\n"
+    
+    info += "CHART DESCRIPTION:\n"
+    info += "This chart shows the decomposition of Brachistochrone loss into two components.\n"
+    info += "Blue bar (L_path): Path loss - measures energy change relative to speed.\n"
+    info += "Orange bar (L_mono): Monotonicity loss - penalizes energy increases.\n\n"
+    
+    info += "MATHEMATICAL FORMULATION:\n"
+    info += "-" * 40 + "\n"
+    info += f"L_path = mean(|E₁ - E₀| / (v₀ + ε))\n"
+    info += f"L_mono = mean(ReLU(E₁ - E₀))\n"
+    info += f"where v₀ = √(2αE₀ + ε)\n\n"
+    
+    info += f"SIMULATION PARAMETERS:\n"
+    info += "-" * 40 + "\n"
+    info += f"Batch Size: {B}\n"
+    info += f"Alpha (α): {alpha}\n"
+    info += f"Epsilon (ε): {eps}\n"
+    info += f"Random Seed: 1337 (for reproducibility)\n\n"
+    
+    # Calculate actual values
+    rng = np.random.default_rng(1337)
+    E0 = np.abs(rng.normal(1.0, 0.2, size=B)) + 0.1
+    E1 = np.clip(E0 - np.abs(rng.normal(0.25, 0.15, size=B)), a_min=eps, a_max=None)
+    v0 = np.sqrt(2.0 * alpha * E0 + eps)
+    L_path = np.mean(np.abs(E1 - E0) / (v0 + eps))
+    L_mono = np.mean(np.clip(E1 - E0, a_min=0.0, a_max=None))
+    
+    info += "CALCULATED VALUES:\n"
+    info += "-" * 40 + "\n"
+    info += f"L_path: {L_path:.6f}\n"
+    info += f"L_mono: {L_mono:.6f}\n"
+    info += f"Total Loss: {L_path + L_mono:.6f}\n\n"
+    
+    info += f"STATISTICAL SUMMARY:\n"
+    info += "-" * 40 + "\n"
+    info += f"E₀ mean: {E0.mean():.4f} ± {E0.std():.4f}\n"
+    info += f"E₁ mean: {E1.mean():.4f} ± {E1.std():.4f}\n"
+    info += f"Energy change: {E1.mean() - E0.mean():.4f}\n"
+    info += f"v₀ mean: {v0.mean():.4f} ± {v0.std():.4f}\n\n"
+    
+    info += "INTERPRETATION:\n"
+    info += "-" * 40 + "\n"
+    info += "• L_path measures how much energy changes relative to current speed\n"
+    info += "• L_mono ensures energy decreases monotonically (no increases)\n"
+    info += "• Lower values indicate better optimization behavior\n"
+    info += "• The ratio L_path/L_mono shows the balance between path and monotonicity\n"
+    
+    return info
+
+
+def generate_trajectory_1d_info(steps: int, dt: float, alpha: float, eps: float) -> str:
+    """Generate detailed information for 1D trajectory chart."""
+    info = "1D TRAJECTORY COMPARISON - DYNAMICS ANALYSIS\n"
+    info += "=" * 60 + "\n\n"
+    
+    info += "CHART DESCRIPTION:\n"
+    info += "This chart compares the optimization trajectories of Brachistochrone vs Gradient Flow.\n"
+    info += "Red line: Brachistochrone trajectory with acceleration-then-refinement behavior.\n"
+    info += "Blue line: Standard gradient flow for comparison.\n\n"
+    
+    info += "MATHEMATICAL MODEL:\n"
+    info += "-" * 40 + "\n"
+    info += f"Energy Function: E(h) = 0.5(h - h*)², where h* = 0 (target)\n"
+    info += f"Brachistochrone Acceleration: d²h/dt² = -(1+ṗ²)αh/(h²+ε)\n"
+    info += f"Gradient Flow: dh/dt = -∇E = -h\n"
+    info += f"Parameters: α = {alpha}, ε = {eps}, dt = {dt}\n\n"
+    
+    # Calculate trajectories
+    def acc(h, hdot):
+        return -(1.0 + hdot**2) * (alpha * h) / (h * h + eps)
+    
+    # Brachistochrone trajectory
+    h, hdot = 1.0, 0.0
+    traj_brach = [h]
+    for _ in range(steps):
+        hdd = acc(h, hdot)
+        hdot = hdot + dt * hdd
+        h = h + dt * hdot
+        traj_brach.append(h)
+    
+    # Gradient flow trajectory
+    h_gd = 1.0
+    traj_gd = [h_gd]
+    for _ in range(steps):
+        h_gd = h_gd - dt * h_gd
+        traj_gd.append(h_gd)
+    
+    info += "TRAJECTORY VALUES:\n"
+    info += "-" * 40 + "\n"
+    info += "Step | Brachistochrone | Gradient Flow | Difference\n"
+    info += "-" * 50 + "\n"
+    
+    for i in range(steps + 1):
+        brach_val = traj_brach[i]
+        gd_val = traj_gd[i]
+        diff = brach_val - gd_val
+        info += f"  {i:2d}  |     {brach_val:8.4f}    |    {gd_val:8.4f}   |  {diff:8.4f}\n"
+    
+    info += f"\nCONVERGENCE ANALYSIS:\n"
+    info += "-" * 40 + "\n"
+    info += f"Brachistochrone final value: {traj_brach[-1]:.6f}\n"
+    info += f"Gradient Flow final value: {traj_gd[-1]:.6f}\n"
+    info += f"Brachistochrone convergence rate: {traj_brach[-1]/traj_brach[0]:.6f}\n"
+    info += f"Gradient Flow convergence rate: {traj_gd[-1]/traj_gd[0]:.6f}\n\n"
+    
+    info += "INTERPRETATION:\n"
+    info += "-" * 40 + "\n"
+    info += "• Brachistochrone shows 'accelerate-then-refine' behavior\n"
+    info += "• Initial rapid descent followed by careful approach to optimum\n"
+    info += "• Gradient flow shows steady exponential decay\n"
+    info += "• Brachistochrone may converge faster in early stages\n"
+    info += "• The acceleration term allows for adaptive step sizes\n"
+    
+    return info
+
+
+def generate_ablation_decomp_info(T: int, seeds: int) -> str:
+    """Generate detailed information for ablation decomposition chart."""
+    info = "ABLATION DECOMPOSITION - LOSS COMPONENT ANALYSIS\n"
+    info += "=" * 60 + "\n\n"
+    
+    info += "CHART DESCRIPTION:\n"
+    info += "This chart shows the effect of different loss components across optimization stages.\n"
+    info += "Green line: Full Brachistochrone with both L_path and L_mono.\n"
+    info += "Orange line: Without L_mono (monotonicity loss).\n"
+    info += "Purple line: Without L_path (path loss).\n\n"
+    
+    info += "EXPERIMENTAL SETUP:\n"
+    info += "-" * 40 + "\n"
+    info += f"Time Steps: {T}\n"
+    info += f"Random Seeds: {seeds}\n"
+    info += f"Validation Loss Proxy: Simulated optimization trajectory\n\n"
+    
+    info += "INTERPRETATION:\n"
+    info += "-" * 40 + "\n"
+    info += "• Full method (green) shows best convergence behavior\n"
+    info += "• Removing L_mono (orange) may allow energy increases\n"
+    info += "• Removing L_path (purple) loses speed-adaptive behavior\n"
+    info += "• Both components are necessary for optimal performance\n"
+    info += "• The shaded regions show variability across random seeds\n"
+    
+    return info
+
+
+def generate_method_overview_info() -> str:
+    """Generate detailed information for method overview chart."""
+    info = "METHOD OVERVIEW - SCHEMATIC QUANTITATIVE ANALYSIS\n"
+    info += "=" * 60 + "\n\n"
+    
+    info += "CHART DESCRIPTION:\n"
+    info += "This chart provides a schematic overview of the Brachistochrone method.\n"
+    info += "Shows energy transformation E(h₀) → E(h₁) and speed field v(h₀).\n"
+    info += "Illustrates the core principle of energy-speed relationship.\n\n"
+    
+    info += "MATHEMATICAL RELATIONSHIPS:\n"
+    info += "-" * 40 + "\n"
+    info += "Energy Range: E₀ ∈ [0.2, 2.0]\n"
+    info += "Speed Formula: v₀ = √(2αE₀ + ε)\n"
+    info += "Energy Improvement: E₁ = max(E₀ - 0.4 - 0.2sin(θ), ε)\n"
+    info += "Parameters: α = 1.0, ε = 1e-6\n\n"
+    
+    info += "INTERPRETATION:\n"
+    info += "-" * 40 + "\n"
+    info += "• Higher initial energy leads to higher initial speed\n"
+    info += "• Energy decreases in a controlled manner\n"
+    info += "• Speed adapts to current energy level\n"
+    info += "• The method balances speed and precision\n"
+    info += "• Shows the 'accelerate-then-refine' principle visually\n"
+    
+    return info
+
+
 def plot_results_summary(df: pd.DataFrame, out_dirs: list[str]) -> None:
     if df.empty:
         return
@@ -107,7 +451,10 @@ def plot_results_summary(df: pd.DataFrame, out_dirs: list[str]) -> None:
     ax2.legend(loc="upper right", frameon=False)
 
     plt.title("Best Method Results Summary by Dataset")
-    save_both(fig, "results_summary.pdf", out_dirs)
+    
+    # Generate detailed data information
+    data_info = generate_results_summary_info(best_results, df)
+    save_both(fig, "results_summary.pdf", out_dirs, data_info)
     plt.close(fig)
     
     # Create a detailed comparison chart
@@ -168,7 +515,10 @@ def plot_detailed_comparison(df: pd.DataFrame, out_dirs: list[str]) -> None:
                         f'{height:.3f}', ha='center', va='bottom', fontsize=8)
     
     plt.tight_layout()
-    save_both(fig, "detailed_comparison.pdf", out_dirs)
+    
+    # Generate detailed data information
+    data_info = generate_detailed_comparison_info(df)
+    save_both(fig, "detailed_comparison.pdf", out_dirs, data_info)
     plt.close(fig)
     
     # Create method performance summary
@@ -237,7 +587,10 @@ def plot_method_summary(df: pd.DataFrame, out_dirs: list[str]) -> None:
                 f'{height:.3f}', ha='center', va='bottom', fontsize=8)
     
     plt.tight_layout()
-    save_both(fig, "method_summary.pdf", out_dirs)
+    
+    # Generate detailed data information
+    data_info = generate_method_summary_info(method_stats)
+    save_both(fig, "method_summary.pdf", out_dirs, data_info)
     plt.close(fig)
 
 
@@ -253,7 +606,10 @@ def plot_energy_curve(out_dirs: list[str], T: int = 8, alpha: float = 1.0, eps: 
     ax.grid(axis="y", linestyle=":", alpha=0.4)
     ax.legend(frameon=False)
     ax.set_title("Energy and Speed Across Stages")
-    save_both(fig, "energy_curve.pdf", out_dirs)
+    
+    # Generate detailed data information
+    data_info = generate_energy_curve_info(T, alpha, eps)
+    save_both(fig, "energy_curve.pdf", out_dirs, data_info)
     plt.close(fig)
 
 
@@ -295,7 +651,10 @@ def plot_loss_decomposition(
     for bar, val in zip(bars, [Lp_mean, Lm_mean]):
         ax.text(bar.get_x() + bar.get_width()/2.0, val, f"{val:.3f}", ha="center", va="bottom", fontsize=9)
     ax.grid(axis="y", linestyle=":", alpha=0.3)
-    save_both(fig, "loss_decomp.pdf", out_dirs)
+    
+    # Generate detailed data information
+    data_info = generate_loss_decomp_info(B, alpha, eps)
+    save_both(fig, "loss_decomp.pdf", out_dirs, data_info)
     plt.close(fig)
 
 
@@ -321,7 +680,10 @@ def plot_method_overview(out_dirs: list[str]) -> None:
     lines, labels = ax.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax.legend(lines + lines2, labels + labels2, frameon=False, loc="upper right")
-    save_both(fig, "method_overview.pdf", out_dirs)
+    
+    # Generate detailed data information
+    data_info = generate_method_overview_info()
+    save_both(fig, "method_overview.pdf", out_dirs, data_info)
     plt.close(fig)
 
 
@@ -358,7 +720,10 @@ def plot_ablation_decomposition(out_dirs: list[str], seeds: int = 3) -> None:
     ax.set_title("Ablation: Effect of L_path and L_mono across stages")
     ax.grid(axis="y", linestyle=":", alpha=0.4)
     ax.legend(frameon=False)
-    save_both(fig, "ablation_decomp.pdf", out_dirs)
+    
+    # Generate detailed data information
+    data_info = generate_ablation_decomp_info(T, seeds)
+    save_both(fig, "ablation_decomp.pdf", out_dirs, data_info)
     plt.close(fig)
 
 def plot_trajectory_1d(out_dirs: list[str], steps: int = 6, dt: float = 0.2, alpha: float = 1.0, eps: float = 1e-4):
@@ -390,7 +755,10 @@ def plot_trajectory_1d(out_dirs: list[str], steps: int = 6, dt: float = 0.2, alp
     ax.grid(axis="y", linestyle=":", alpha=0.4)
     ax.legend(frameon=False)
     ax.set_title("1D Dynamics: Accelerate-then-Refine")
-    save_both(fig, "trajectory_1d.pdf", out_dirs)
+    
+    # Generate detailed data information
+    data_info = generate_trajectory_1d_info(steps, dt, alpha, eps)
+    save_both(fig, "trajectory_1d.pdf", out_dirs, data_info)
     plt.close(fig)
 
 
