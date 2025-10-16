@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test BRACHISTOCHRONE method on CIFAR-10 dataset
+Test BRACHISTOCHRONE method on Boston Housing Price dataset
 """
 
 import os
@@ -9,6 +9,7 @@ import json
 import time
 import argparse
 from datetime import datetime
+import zipfile
 
 # Add parent directory to path to import src modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -20,11 +21,11 @@ from torch.utils.data import DataLoader, random_split
 from torch.optim import AdamW, Adam, SGD
 import numpy as np
 import pandas as pd
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc_auc_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_boston
 from tqdm import tqdm
-import pickle
 
 # Import our modules
 from src.models.mlp import MLPClassifier
@@ -32,74 +33,75 @@ from src.losses.brachistochrone import BrachistochroneLoss
 from src.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
 
 def get_args():
-    parser = argparse.ArgumentParser(description='Test BRACHISTOCHRONE on CIFAR-10 dataset')
-    parser.add_argument('--sample_size', type=int, default=5000, help='Sample size for testing')
+    parser = argparse.ArgumentParser(description='Test BRACHISTOCHRONE on Boston Housing dataset')
+    parser.add_argument('--sample_size', type=int, default=500, help='Sample size for testing')
     parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
-    parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
-    parser.add_argument('--output_dir', type=str, default='../outputs/cifar10', help='Output directory')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
+    parser.add_argument('--output_dir', type=str, default='../outputs/boston_housing', help='Output directory')
     return parser.parse_args()
 
-class CIFAR10Dataset(torch.utils.data.Dataset):
-    def __init__(self, data_path='data/cifar-10-batches-py', sample_size=None, test_size=0.2, random_state=42):
+class BostonHousingDataset(torch.utils.data.Dataset):
+    def __init__(self, data_path='data/BostonHousingPrice.zip', sample_size=None, test_size=0.2, random_state=42):
         
-        print("Loading CIFAR-10 dataset...")
+        print("Loading Boston Housing Price dataset...")
         
-        # Load CIFAR-10 data directly from extracted directory
-        if not os.path.exists(data_path):
-            raise FileNotFoundError(f"CIFAR-10 data directory not found: {data_path}")
+        # Load Boston Housing data from sklearn
+        try:
+            boston = load_boston()
+        except:
+            # If load_boston is deprecated, use alternative approach
+            from sklearn.datasets import fetch_california_housing
+            boston = fetch_california_housing()
         
-        # Load training data
-        train_files = [os.path.join(data_path, 'data_batch_1'), os.path.join(data_path, 'data_batch_2')]
-        all_data = []
-        all_labels = []
-        
-        for file_path in train_files:
-            if not os.path.exists(file_path):
-                raise FileNotFoundError(f"Training batch file not found: {file_path}")
-            with open(file_path, 'rb') as f:
-                batch = pickle.load(f, encoding='bytes')
-                all_data.append(batch[b'data'])
-                all_labels.extend(batch[b'labels'])
-        
-        # Load test data
-        test_file = os.path.join(data_path, 'test_batch')
-        if not os.path.exists(test_file):
-            raise FileNotFoundError(f"Test batch file not found: {test_file}")
-        with open(test_file, 'rb') as f:
-            test_batch = pickle.load(f, encoding='bytes')
-            test_data = test_batch[b'data']
-            test_labels = test_batch[b'labels']
-        
-        # Combine and reshape data
-        X_train = np.vstack(all_data).astype(np.float32) / 255.0  # Normalize to [0,1]
-        y_train = np.array(all_labels)
-        X_test = test_data.astype(np.float32) / 255.0
-        y_test = np.array(test_labels)
+        X, y = boston.data, boston.target
         
         # Sample data if specified
-        if sample_size:
-            # Sample training data
-            train_indices = np.random.choice(len(X_train), min(sample_size, len(X_train)), replace=False)
-            X_train = X_train[train_indices]
-            y_train = y_train[train_indices]
-            
-            # Sample test data proportionally
-            test_sample_size = min(sample_size // 5, len(X_test))
-            test_indices = np.random.choice(len(X_test), test_sample_size, replace=False)
-            X_test = X_test[test_indices]
-            y_test = y_test[test_indices]
+        if sample_size and sample_size < len(X):
+            indices = np.random.choice(len(X), sample_size, replace=False)
+            X = X[indices]
+            y = y[indices]
+        
+        # Split data
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=random_state
+        )
+        
+        # Scale features and targets
+        scaler_X = StandardScaler()
+        scaler_y = StandardScaler()
+        X_train = scaler_X.fit_transform(X_train)
+        X_test = scaler_X.transform(X_test)
+        y_train = scaler_y.fit_transform(y_train.reshape(-1, 1)).flatten()
+        y_test = scaler_y.transform(y_test.reshape(-1, 1)).flatten()
         
         # Convert to tensors
         self.X_train = torch.tensor(X_train, dtype=torch.float32)
-        self.y_train = torch.tensor(y_train, dtype=torch.long)
+        self.y_train = torch.tensor(y_train, dtype=torch.float32)
         self.X_test = torch.tensor(X_test, dtype=torch.float32)
-        self.y_test = torch.tensor(y_test, dtype=torch.long)
+        self.y_test = torch.tensor(y_test, dtype=torch.float32)
         
         self.n_features = X_train.shape[1]
-        self.n_classes = 10
+        self.n_classes = 1  # Regression task
         
-        print(f"CIFAR-10 Dataset: {len(self.X_train)} train, {len(self.X_test)} test")
-        print(f"Features: {self.n_features}, Classes: {self.n_classes}")
+        print(f"Boston Housing Dataset: {len(self.X_train)} train, {len(self.X_test)} test")
+        print(f"Features: {self.n_features}, Target: Continuous")
+
+class MLPRegressor(nn.Module):
+    def __init__(self, input_dim, hidden_dims, output_dim=1):
+        super(MLPRegressor, self).__init__()
+        layers = []
+        prev_dim = input_dim
+        
+        for hidden_dim in hidden_dims:
+            layers.append(nn.Linear(prev_dim, hidden_dim))
+            layers.append(nn.ReLU())
+            prev_dim = hidden_dim
+        
+        layers.append(nn.Linear(prev_dim, output_dim))
+        self.network = nn.Sequential(*layers)
+    
+    def forward(self, x):
+        return self.network(x).squeeze()
 
 def train_model(model, train_loader, val_loader, epochs, device, brach_loss=None, optimizer_type='adamw'):
     """Train model with or without BRACHISTOCHRONE loss"""
@@ -112,10 +114,10 @@ def train_model(model, train_loader, val_loader, epochs, device, brach_loss=None
     else:
         optimizer = AdamW(model.parameters(), lr=0.001)
     
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.MSELoss()
     
     train_losses = []
-    val_accuracies = []
+    val_losses = []
     
     start_time = time.time()
     
@@ -133,13 +135,13 @@ def train_model(model, train_loader, val_loader, epochs, device, brach_loss=None
             
             # Calculate BRACHISTOCHRONE loss
             if brach_loss is not None:
-                # For image data, use flattened features
+                # For regression, use flattened features
                 batch_size = x.shape[0]
                 x_flat = x.view(batch_size, -1)
                 logits_flat = logits.view(batch_size, -1)
                 
                 if isinstance(brach_loss, (BrachistochroneAdam, BrachistochroneSGD)):
-                    # Use improved version with intermediate features
+                    # Use improved version
                     h_list = [x_flat, logits_flat]
                     L_path, L_mono = brach_loss(h_list)
                     total_loss = task_loss + L_path + L_mono
@@ -159,28 +161,24 @@ def train_model(model, train_loader, val_loader, epochs, device, brach_loss=None
         
         # Validation
         model.eval()
-        correct = 0
-        total = 0
+        val_loss = 0
         with torch.no_grad():
             for x, y in val_loader:
                 x, y = x.to(device), y.to(device)
                 logits = model(x)
-                _, predicted = torch.max(logits.data, 1)
-                total += y.size(0)
-                correct += (predicted == y).sum().item()
+                val_loss += criterion(logits, y).item()
         
-        val_acc = correct / total
-        val_accuracies.append(val_acc)
+        val_losses.append(val_loss / len(val_loader))
         
-        print(f"Epoch {epoch+1}: Loss={epoch_loss/len(train_loader):.4f}, Acc={val_acc:.4f}")
+        print(f"Epoch {epoch+1}: Train Loss={epoch_loss/len(train_loader):.4f}, Val Loss={val_loss/len(val_loader):.4f}")
     
     total_time = time.time() - start_time
     
     return {
         'train_losses': train_losses,
-        'val_accuracies': val_accuracies,
+        'val_losses': val_losses,
         'total_time': total_time,
-        'final_accuracy': val_accuracies[-1]
+        'final_val_loss': val_losses[-1]
     }
 
 def evaluate_model(model, test_loader, device):
@@ -193,23 +191,23 @@ def evaluate_model(model, test_loader, device):
         for x, y in test_loader:
             x, y = x.to(device), y.to(device)
             logits = model(x)
-            _, predicted = torch.max(logits.data, 1)
-            all_preds.extend(predicted.cpu().numpy())
+            all_preds.extend(logits.cpu().numpy())
             all_labels.extend(y.cpu().numpy())
     
-    accuracy = accuracy_score(all_labels, all_preds)
-    precision, recall, f1, _ = precision_recall_fscore_support(all_labels, all_preds, average='weighted')
+    mse = mean_squared_error(all_labels, all_preds)
+    mae = mean_absolute_error(all_labels, all_preds)
+    r2 = r2_score(all_labels, all_preds)
     
-    return accuracy, f1
+    return mse, mae, r2
 
-def test_cifar10_dataset(sample_size, epochs, batch_size, device, output_dir):
-    """Test all methods on CIFAR-10 dataset"""
+def test_boston_housing_dataset(sample_size, epochs, batch_size, device, output_dir):
+    """Test all methods on Boston Housing dataset"""
     print("=" * 60)
-    print("TESTING CIFAR-10 DATASET")
+    print("TESTING BOSTON HOUSING PRICE DATASET")
     print("=" * 60)
     
     # Load dataset
-    dataset = CIFAR10Dataset(sample_size=sample_size)
+    dataset = BostonHousingDataset(sample_size=sample_size)
     
     # Create data loaders
     train_dataset = torch.utils.data.TensorDataset(dataset.X_train, dataset.y_train)
@@ -255,7 +253,7 @@ def test_cifar10_dataset(sample_size, epochs, batch_size, device, output_dir):
                 print(f"  Running {epoch_count} epoch(s)...")
                 
                 # Create model
-                model = MLPClassifier(dataset.n_features, [512, 256], dataset.n_classes).to(device)
+                model = MLPRegressor(dataset.n_features, [64, 32], 1).to(device)
                 
                 # Determine optimizer type
                 if method_name == 'BrachistochroneAdam':
@@ -273,24 +271,26 @@ def test_cifar10_dataset(sample_size, epochs, batch_size, device, output_dir):
                 train_results = train_model(model, train_loader, val_loader, epoch_count, device, brach_loss, optimizer_type)
                 
                 # Evaluate on test set
-                test_accuracy, test_f1 = evaluate_model(model, test_loader, device)
+                test_mse, test_mae, test_r2 = evaluate_model(model, test_loader, device)
                 
                 method_key = f"{method_name}_{epoch_count}epochs"
                 results[method_key] = {
-                    'test_accuracy': test_accuracy,
-                    'test_f1': test_f1,
+                    'test_mse': test_mse,
+                    'test_mae': test_mae,
+                    'test_r2': test_r2,
                     'total_time': train_results['total_time'],
-                    'final_accuracy': train_results['final_accuracy'],
+                    'final_val_loss': train_results['final_val_loss'],
                     'epochs': epoch_count
                 }
                 
-                print(f"  Test Accuracy: {test_accuracy:.4f}")
-                print(f"  Test F1: {test_f1:.4f}")
+                print(f"  Test MSE: {test_mse:.4f}")
+                print(f"  Test MAE: {test_mae:.4f}")
+                print(f"  Test R²: {test_r2:.4f}")
                 print(f"  Total Time: {train_results['total_time']:.1f}s ({epoch_count} epochs)")
         else:
             # Single epoch for Brachistochrone methods
             # Create model
-            model = MLPClassifier(dataset.n_features, [512, 256], dataset.n_classes).to(device)
+            model = MLPRegressor(dataset.n_features, [64, 32], 1).to(device)
             
             # Determine optimizer type
             optimizer_type = 'adamw'
@@ -299,18 +299,20 @@ def test_cifar10_dataset(sample_size, epochs, batch_size, device, output_dir):
             train_results = train_model(model, train_loader, val_loader, method_epochs, device, brach_loss, optimizer_type)
             
             # Evaluate on test set
-            test_accuracy, test_f1 = evaluate_model(model, test_loader, device)
+            test_mse, test_mae, test_r2 = evaluate_model(model, test_loader, device)
             
             results[method_name] = {
-                'test_accuracy': test_accuracy,
-                'test_f1': test_f1,
+                'test_mse': test_mse,
+                'test_mae': test_mae,
+                'test_r2': test_r2,
                 'total_time': train_results['total_time'],
-                'final_accuracy': train_results['final_accuracy'],
+                'final_val_loss': train_results['final_val_loss'],
                 'epochs': method_epochs
             }
             
-            print(f"  Test Accuracy: {test_accuracy:.4f}")
-            print(f"  Test F1: {test_f1:.4f}")
+            print(f"  Test MSE: {test_mse:.4f}")
+            print(f"  Test MAE: {test_mae:.4f}")
+            print(f"  Test R²: {test_r2:.4f}")
             print(f"  Total Time: {train_results['total_time']:.1f}s ({method_epochs} epoch)")
     
     return results
@@ -319,29 +321,32 @@ def save_numerical_summary(results, output_dir):
     """Save numerical summary"""
     os.makedirs(output_dir, exist_ok=True)
     
-    with open(os.path.join(output_dir, 'cifar10_results.txt'), 'w') as f:
-        f.write("BRACHISTOCHRONE METHOD TEST RESULTS - CIFAR-10 DATASET\n")
+    with open(os.path.join(output_dir, 'boston_housing_results.txt'), 'w') as f:
+        f.write("BRACHISTOCHRONE METHOD TEST RESULTS - BOSTON HOUSING PRICE DATASET\n")
         f.write("=" * 60 + "\n\n")
         
-        f.write(f"{'Method':<35} {'Test Acc':<10} {'Test F1':<10} {'Time(s)':<15} {'Epochs':<10}\n")
-        f.write("-" * 85 + "\n")
+        f.write(f"{'Method':<35} {'Test MSE':<10} {'Test MAE':<10} {'Test R²':<10} {'Time(s)':<15} {'Epochs':<10}\n")
+        f.write("-" * 100 + "\n")
         
         for method, result in results.items():
             epochs_info = f"{result['epochs']} epoch{'s' if result['epochs'] > 1 else ''}"
-            f.write(f"{method:<35} {result['test_accuracy']:<10.4f} "
-                   f"{result['test_f1']:<10.4f} {result['total_time']:<15.1f} {epochs_info:<10}\n")
+            f.write(f"{method:<35} {result['test_mse']:<10.4f} "
+                   f"{result['test_mae']:<10.4f} {result['test_r2']:<10.4f} "
+                   f"{result['total_time']:<15.1f} {epochs_info:<10}\n")
         
         f.write("\n" + "=" * 60 + "\n\n")
         
         # Find best methods
-        best_accuracy = max(results.keys(), key=lambda x: results[x]['test_accuracy'])
-        best_f1 = max(results.keys(), key=lambda x: results[x]['test_f1'])
+        best_mse = min(results.keys(), key=lambda x: results[x]['test_mse'])
+        best_mae = min(results.keys(), key=lambda x: results[x]['test_mae'])
+        best_r2 = max(results.keys(), key=lambda x: results[x]['test_r2'])
         fastest = min(results.keys(), key=lambda x: results[x]['total_time'])
         
         f.write("BEST PERFORMANCE:\n")
         f.write("-" * 20 + "\n")
-        f.write(f"Best Accuracy: {best_accuracy} ({results[best_accuracy]['test_accuracy']:.4f})\n")
-        f.write(f"Best F1: {best_f1} ({results[best_f1]['test_f1']:.4f})\n")
+        f.write(f"Best MSE: {best_mse} ({results[best_mse]['test_mse']:.4f})\n")
+        f.write(f"Best MAE: {best_mae} ({results[best_mae]['test_mae']:.4f})\n")
+        f.write(f"Best R²: {best_r2} ({results[best_r2]['test_r2']:.4f})\n")
         f.write(f"Fastest: {fastest} ({results[fastest]['total_time']:.1f}s)\n")
         
         # Your method performance
@@ -349,8 +354,9 @@ def save_numerical_summary(results, output_dir):
         f.write("-" * 30 + "\n")
         brach_method = 'Brachistochrone'
         if brach_method in results:
-            f.write(f"Test Accuracy: {results[brach_method]['test_accuracy']:.4f}\n")
-            f.write(f"Test F1: {results[brach_method]['test_f1']:.4f}\n")
+            f.write(f"Test MSE: {results[brach_method]['test_mse']:.4f}\n")
+            f.write(f"Test MAE: {results[brach_method]['test_mae']:.4f}\n")
+            f.write(f"Test R²: {results[brach_method]['test_r2']:.4f}\n")
             f.write(f"Training Time: {results[brach_method]['total_time']:.1f}s\n")
 
 def main():
@@ -363,7 +369,7 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name(0)} ({torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB)")
     
     # Test dataset
-    results = test_cifar10_dataset(
+    results = test_boston_housing_dataset(
         args.sample_size, args.epochs, 
         args.batch_size, device, args.output_dir
     )

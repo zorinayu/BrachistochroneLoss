@@ -37,16 +37,67 @@ WINE Dataset:
   Training Time: 0.000 seconds
   Epochs: 2 epochs
 
+NAN Dataset:
+  Best Method: Brachistochrone
+  Accuracy: 0.3275 (32.75%)
+  F1 Score: 0.2932 (29.32%)
+  Training Time: 1.100 seconds
+  Epochs: 1 epoch
+
+NAN Dataset:
+  Best Method: Brachistochrone
+  Accuracy: 1.0000 (100.00%)
+  F1 Score: 1.0000 (100.00%)
+  Training Time: 0.600 seconds
+  Epochs: 1 epoch
+
+NAN Dataset:
+  Best Method: BrachistochroneAdam_3epochs
+  Accuracy: 0.9300 (93.00%)
+  F1 Score: 0.9290 (92.90%)
+  Training Time: 0.100 seconds
+  Epochs: 3 epochs
+
+NAN Dataset:
+  Best Method: Adam_3epochs
+  Accuracy: 0.2600 (26.00%)
+  F1 Score: 0.2534 (25.34%)
+  Training Time: 0.400 seconds
+  Epochs: 3 epochs
+
+NAN Dataset:
+  Best Method: BrachistochroneAdam_3epochs
+  Accuracy: 0.8210 (82.10%)
+  F1 Score: 0.8151 (81.51%)
+  Training Time: 1.600 seconds
+  Epochs: 3 epochs
+
+NAN Dataset:
+  Best Method: BrachistochroneAdam_2epochs
+  Accuracy: 0.5333 (53.33%)
+  F1 Score: 0.4444 (44.44%)
+  Training Time: 0.100 seconds
+  Epochs: 2 epochs
+
+NAN Dataset:
+  Best Method: Adam_3epochs
+  Accuracy: 0.8917 (89.17%)
+  F1 Score: 0.8892 (88.92%)
+  Training Time: 0.200 seconds
+  Epochs: 3 epochs
+
 STATISTICAL SUMMARY:
 ----------------------------------------
-Average Accuracy: 0.6000 (60.00%)
-Average F1 Score: 0.5237 (52.37%)
-Average Training Time: 0.100 seconds
+Average Accuracy: 0.6512 (65.12%)
+Average F1 Score: 0.6108 (61.08%)
+Average Training Time: 0.409 seconds
 Total Methods Tested: 13
-Total Datasets: 4
+Total Datasets: 11
 
 METHOD DISTRIBUTION:
 ----------------------------------------
-BrachistochroneAdam_2epochs: 2 dataset(s)
+BrachistochroneAdam_2epochs: 3 dataset(s)
+Brachistochrone: 3 dataset(s)
+BrachistochroneAdam_3epochs: 2 dataset(s)
+Adam_3epochs: 2 dataset(s)
 BrachistochroneSGD_2epochs: 1 dataset(s)
-Brachistochrone: 1 dataset(s)

@@ -1,0 +1,34 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - AIR QUALITY DATASET
+============================================================
+
+Method                              Test MSE   Test MAE   Test R2    Time(s)         Epochs    
+----------------------------------------------------------------------------------------------------
+Brachistochrone                     0.8012     0.7077     0.3175     1.3             1 epoch   
+BrachistochroneAdam_1epochs         0.8260     0.7209     0.2964     0.1             1 epoch   
+BrachistochroneAdam_2epochs         0.3109     0.4341     0.7351     0.3             2 epochs  
+BrachistochroneAdam_3epochs         0.0955     0.2335     0.9187     0.4             3 epochs  
+BrachistochroneSGD_1epochs          1.2784     0.9013     -0.0890    0.2             1 epoch   
+BrachistochroneSGD_2epochs          1.1878     0.8665     -0.0119    0.3             2 epochs  
+BrachistochroneSGD_3epochs          1.1085     0.8374     0.0557     0.4             3 epochs  
+Adam_1epochs                        0.8451     0.7302     0.2801     0.1             1 epoch   
+Adam_2epochs                        0.5187     0.5646     0.5581     0.2             2 epochs  
+Adam_3epochs                        0.0836     0.2301     0.9288     0.4             3 epochs  
+SGD_1epochs                         1.1742     0.8641     -0.0003    0.1             1 epoch   
+SGD_2epochs                         1.1076     0.8365     0.0565     0.2             2 epochs  
+SGD_3epochs                         1.1694     0.8624     0.0038     0.3             3 epochs  
+
+============================================================
+
+BEST PERFORMANCE:
+--------------------
+Best MSE: Adam_3epochs (0.0836)
+Best MAE: Adam_3epochs (0.2301)
+Best R2: Adam_3epochs (0.9288)
+Fastest: SGD_1epochs (0.1s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test MSE: 0.8012
+Test MAE: 0.7077
+Test R2: 0.3175
+Training Time: 1.3s

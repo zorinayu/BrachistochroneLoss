@@ -1,0 +1,34 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - MOVIELENS DATASET
+============================================================
+
+Method                              Test MSE   Test MAE   Test R2    Time(s)         Epochs    
+----------------------------------------------------------------------------------------------------
+Brachistochrone                     1.1340     0.8616     -0.0009    2.4             1 epoch   
+BrachistochroneAdam_1epochs         1.1462     0.8672     -0.0116    0.4             1 epoch   
+BrachistochroneAdam_2epochs         1.1431     0.8655     -0.0089    0.6             2 epochs  
+BrachistochroneAdam_3epochs         1.1511     0.8715     -0.0159    0.8             3 epochs  
+BrachistochroneSGD_1epochs          1.1637     0.8670     -0.0271    0.3             1 epoch   
+BrachistochroneSGD_2epochs          1.1375     0.8661     -0.0039    0.5             2 epochs  
+BrachistochroneSGD_3epochs          1.1550     0.8629     -0.0194    1.2             3 epochs  
+Adam_1epochs                        1.1398     0.8632     -0.0059    0.3             1 epoch   
+Adam_2epochs                        1.1415     0.8661     -0.0075    0.6             2 epochs  
+Adam_3epochs                        1.1542     0.8695     -0.0187    1.0             3 epochs  
+SGD_1epochs                         1.1509     0.8656     -0.0158    0.3             1 epoch   
+SGD_2epochs                         1.1342     0.8629     -0.0010    0.6             2 epochs  
+SGD_3epochs                         1.1358     0.8661     -0.0024    0.8             3 epochs  
+
+============================================================
+
+BEST PERFORMANCE:
+--------------------
+Best MSE: Brachistochrone (1.1340)
+Best MAE: Brachistochrone (0.8616)
+Best R2: Brachistochrone (-0.0009)
+Fastest: Adam_1epochs (0.3s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test MSE: 1.1340
+Test MAE: 0.8616
+Test R2: -0.0009
+Training Time: 2.4s

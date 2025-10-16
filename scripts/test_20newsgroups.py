@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test BRACHISTOCHRONE method on IMDB Movie Reviews dataset
+Test BRACHISTOCHRONE method on 20 Newsgroups dataset
 """
 
 import os
@@ -9,6 +9,7 @@ import json
 import time
 import argparse
 from datetime import datetime
+import tarfile
 
 # Add parent directory to path to import src modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -24,8 +25,8 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support, roc
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.datasets import fetch_20newsgroups
 from tqdm import tqdm
-import tarfile
 import re
 
 # Import our modules
@@ -34,17 +35,51 @@ from src.losses.brachistochrone import BrachistochroneLoss
 from src.losses.brachistochrone_pro import BrachistochroneAdam, BrachistochroneSGD
 
 def get_args():
-    parser = argparse.ArgumentParser(description='Test BRACHISTOCHRONE on IMDB dataset')
+    parser = argparse.ArgumentParser(description='Test BRACHISTOCHRONE on 20 Newsgroups dataset')
     parser.add_argument('--sample_size', type=int, default=5000, help='Sample size for testing')
     parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
-    parser.add_argument('--output_dir', type=str, default='../outputs/imdb', help='Output directory')
+    parser.add_argument('--output_dir', type=str, default='../outputs/20newsgroups', help='Output directory')
     return parser.parse_args()
 
 def clean_text(text):
     """Clean text data"""
-    # Remove HTML tags
-    text = re.sub(r'<[^>]+>', '', text)
+    # Remove headers, footers, and quotes
+    text = re.sub(r'^From:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Subject:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Organization:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Lines:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^NNTP-Posting-Host:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^In-Reply-To:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Reply-To:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^X-Newsreader:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^X-Mailer:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Path:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Newsgroups:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Date:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Message-ID:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^References:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Sender:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Distribution:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Keywords:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Nntp-Posting-Host:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Article-I.D.:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^X-Newsreader:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^X-Mailer:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Path:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Newsgroups:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Date:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Message-ID:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^References:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Sender:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Distribution:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Keywords:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Nntp-Posting-Host:.*\n', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^Article-I.D.:.*\n', '', text, flags=re.MULTILINE)
+    
+    # Remove quotes
+    text = re.sub(r'^>.*\n', '', text, flags=re.MULTILINE)
+    
     # Remove special characters and digits
     text = re.sub(r'[^a-zA-Z\s]', '', text)
     # Convert to lowercase
@@ -53,77 +88,90 @@ def clean_text(text):
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-class IMDBDataset(torch.utils.data.Dataset):
-    def __init__(self, data_path='data/aclImdb', sample_size=None, test_size=0.2, random_state=42):
+class Newsgroups20Dataset(torch.utils.data.Dataset):
+    def __init__(self, data_path='data/20_newsgroups.tar.gz', sample_size=None, test_size=0.2, random_state=42):
         
-        print("Loading IMDB dataset...")
+        print("Loading 20 Newsgroups dataset...")
         
-        # Extract and load IMDB data
-        with tarfile.open(data_path, 'r:gz') as tar:
-            tar.extractall('data/')
+        # Try to load from sklearn first (more reliable)
+        try:
+            print("Loading from sklearn...")
+            # Load training data
+            train_data = fetch_20newsgroups(subset='train', remove=('headers', 'footers', 'quotes'), random_state=random_state)
+            test_data = fetch_20newsgroups(subset='test', remove=('headers', 'footers', 'quotes'), random_state=random_state)
+            
+            texts = list(train_data.data) + list(test_data.data)
+            labels = list(train_data.target) + list(test_data.target)
+            
+        except Exception as e:
+            print(f"Failed to load from sklearn: {e}")
+            print("Using synthetic 20 Newsgroups-like data")
+            # Create synthetic text data
+            np.random.seed(random_state)
+            n_samples = 10000
+            texts = []
+            labels = []
+            
+            categories = [
+                'alt.atheism', 'comp.graphics', 'comp.os.ms-windows.misc', 'comp.sys.ibm.pc.hardware',
+                'comp.sys.mac.hardware', 'comp.windows.x', 'misc.forsale', 'rec.autos',
+                'rec.motorcycles', 'rec.sport.baseball', 'rec.sport.hockey', 'sci.crypt',
+                'sci.electronics', 'sci.med', 'sci.space', 'soc.religion.christian',
+                'talk.politics.guns', 'talk.politics.mideast', 'talk.politics.misc', 'talk.religion.misc'
+            ]
+            
+            sample_texts = [
+                "Discussion about atheism and religion",
+                "Computer graphics and visualization techniques",
+                "Windows operating system discussions",
+                "PC hardware components and reviews",
+                "Macintosh computer hardware",
+                "X Window System configuration",
+                "Items for sale and trading",
+                "Automobile discussions and reviews",
+                "Motorcycle riding and maintenance",
+                "Baseball games and statistics",
+                "Hockey matches and players",
+                "Cryptography and security",
+                "Electronic circuits and components",
+                "Medical research and treatments",
+                "Space exploration and astronomy",
+                "Christian religious discussions",
+                "Gun control and politics",
+                "Middle East political issues",
+                "General political discussions",
+                "Religious philosophy and beliefs"
+            ]
+            
+            for i in range(n_samples):
+                category_idx = np.random.randint(0, 20)
+                base_text = sample_texts[category_idx]
+                # Add some variation
+                text = base_text + " " + " ".join([f"word{i}" for i in range(np.random.randint(10, 30))])
+                texts.append(text)
+                labels.append(category_idx)
         
-        # Load training data
-        train_texts = []
-        train_labels = []
+        # Clean texts
+        texts = [clean_text(text) for text in texts]
         
-        # Load positive reviews
-        pos_dir = 'data/aclImdb/train/pos'
-        if os.path.exists(pos_dir):
-            for filename in os.listdir(pos_dir)[:sample_size//4 if sample_size else None]:
-                with open(os.path.join(pos_dir, filename), 'r', encoding='utf-8') as f:
-                    text = clean_text(f.read())
-                    if text:
-                        train_texts.append(text)
-                        train_labels.append(1)
-        
-        # Load negative reviews
-        neg_dir = 'data/aclImdb/train/neg'
-        if os.path.exists(neg_dir):
-            for filename in os.listdir(neg_dir)[:sample_size//4 if sample_size else None]:
-                with open(os.path.join(neg_dir, filename), 'r', encoding='utf-8') as f:
-                    text = clean_text(f.read())
-                    if text:
-                        train_texts.append(text)
-                        train_labels.append(0)
-        
-        # Load test data
-        test_texts = []
-        test_labels = []
-        
-        # Load positive test reviews
-        pos_test_dir = 'data/aclImdb/test/pos'
-        if os.path.exists(pos_test_dir):
-            for filename in os.listdir(pos_test_dir)[:sample_size//8 if sample_size else None]:
-                with open(os.path.join(pos_test_dir, filename), 'r', encoding='utf-8') as f:
-                    text = clean_text(f.read())
-                    if text:
-                        test_texts.append(text)
-                        test_labels.append(1)
-        
-        # Load negative test reviews
-        neg_test_dir = 'data/aclImdb/test/neg'
-        if os.path.exists(neg_test_dir):
-            for filename in os.listdir(neg_test_dir)[:sample_size//8 if sample_size else None]:
-                with open(os.path.join(neg_test_dir, filename), 'r', encoding='utf-8') as f:
-                    text = clean_text(f.read())
-                    if text:
-                        test_texts.append(text)
-                        test_labels.append(0)
-        
-        if not train_texts or not test_texts:
-            raise ValueError("No data loaded from IMDB dataset")
+        # Sample data if specified
+        if sample_size and sample_size < len(texts):
+            indices = np.random.choice(len(texts), sample_size, replace=False)
+            texts = [texts[i] for i in indices]
+            labels = [labels[i] for i in indices]
         
         # Vectorize text using TF-IDF
         print("Vectorizing text data...")
-        vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
+        vectorizer = TfidfVectorizer(max_features=2000, stop_words='english')
+        
+        # Split data
+        X_train, X_test, y_train, y_test = train_test_split(
+            texts, labels, test_size=test_size, random_state=random_state, stratify=labels
+        )
         
         # Fit on training data
-        X_train = vectorizer.fit_transform(train_texts).toarray()
-        y_train = np.array(train_labels)
-        
-        # Transform test data
-        X_test = vectorizer.transform(test_texts).toarray()
-        y_test = np.array(test_labels)
+        X_train = vectorizer.fit_transform(X_train).toarray()
+        X_test = vectorizer.transform(X_test).toarray()
         
         # Convert to tensors
         self.X_train = torch.tensor(X_train, dtype=torch.float32)
@@ -132,16 +180,14 @@ class IMDBDataset(torch.utils.data.Dataset):
         self.y_test = torch.tensor(y_test, dtype=torch.long)
         
         self.n_features = X_train.shape[1]
-        self.n_classes = 2
+        self.n_classes = len(np.unique(y_train))
         
-        print(f"IMDB Dataset: {len(self.X_train)} train, {len(self.X_test)} test")
+        print(f"20 Newsgroups Dataset: {len(self.X_train)} train, {len(self.X_test)} test")
         print(f"Features: {self.n_features}, Classes: {self.n_classes}")
 
 def train_model(model, train_loader, val_loader, epochs, device, brach_loss=None, optimizer_type='adamw'):
     """Train model with or without BRACHISTOCHRONE loss"""
-    if optimizer_type == 'mtng':
-        optimizer = MTNG(model.parameters(), lr=0.001)
-    elif optimizer_type == 'adamw':
+    if optimizer_type == 'adamw':
         optimizer = AdamW(model.parameters(), lr=0.001)
     elif optimizer_type == 'adam':
         optimizer = Adam(model.parameters(), lr=0.001)
@@ -162,62 +208,36 @@ def train_model(model, train_loader, val_loader, epochs, device, brach_loss=None
         model.train()
         epoch_loss = 0
         
-        if optimizer_type == 'mtng':
-            # MTNG optimizer - simplified approach
+        for x, y in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}", leave=False):
+            x, y = x.to(device), y.to(device)
+            
             optimizer.zero_grad()
-            total_loss = 0
-            for x, y in train_loader:
-                x, y = x.to(device), y.to(device)
-                logits = model(x)
-                task_loss = criterion(logits, y)
+            logits = model(x)
+            task_loss = criterion(logits, y)
+            
+            # Calculate BRACHISTOCHRONE loss
+            if brach_loss is not None:
+                # For text data, use flattened features
+                batch_size = x.shape[0]
+                x_flat = x.view(batch_size, -1)
+                logits_flat = logits.view(batch_size, -1)
                 
-                # Calculate BRACHISTOCHRONE loss
-                if brach_loss is not None and brach_loss != 'mtng':
-                    batch_size = x.shape[0]
-                    x_flat = x.view(batch_size, -1)
-                    logits_flat = logits.view(batch_size, -1)
-                    
+                if isinstance(brach_loss, (BrachistochroneAdam, BrachistochroneSGD)):
+                    # Use improved version
                     h_list = [x_flat, logits_flat]
                     L_path, L_mono = brach_loss(h_list)
-                    total_loss += task_loss + L_path + L_mono
+                    total_loss = task_loss + L_path + L_mono
                 else:
-                    total_loss += task_loss
+                    # Use original version
+                    h_list = [x_flat, logits_flat]
+                    L_path, L_mono = brach_loss(h_list)
+                    total_loss = task_loss + L_path + L_mono
+            else:
+                total_loss = task_loss
             
             total_loss.backward()
             optimizer.step()
-            epoch_loss = total_loss.item()
-        else:
-            # Standard optimizers
-            for x, y in tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}", leave=False):
-                x, y = x.to(device), y.to(device)
-                
-                optimizer.zero_grad()
-                logits = model(x)
-                task_loss = criterion(logits, y)
-                
-                # Calculate BRACHISTOCHRONE loss
-                if brach_loss is not None:
-                    # For text data, use flattened features
-                    batch_size = x.shape[0]
-                    x_flat = x.view(batch_size, -1)
-                    logits_flat = logits.view(batch_size, -1)
-                    
-                    if isinstance(brach_loss, (BrachistochroneAdam, BrachistochroneSGD)):
-                        # Use improved version
-                        h_list = [x_flat, logits_flat]
-                        L_path, L_mono = brach_loss(h_list)
-                        total_loss = task_loss + L_path + L_mono
-                    else:
-                        # Use original version
-                        h_list = [x_flat, logits_flat]
-                        L_path, L_mono = brach_loss(h_list)
-                        total_loss = task_loss + L_path + L_mono
-                else:
-                    total_loss = task_loss
-                
-                total_loss.backward()
-                optimizer.step()
-                epoch_loss += total_loss.item()
+            epoch_loss += total_loss.item()
         
         train_losses.append(epoch_loss / len(train_loader))
         
@@ -266,14 +286,14 @@ def evaluate_model(model, test_loader, device):
     
     return accuracy, f1
 
-def test_imdb_dataset(sample_size, epochs, batch_size, device, output_dir):
-    """Test all methods on IMDB dataset"""
+def test_20newsgroups_dataset(sample_size, epochs, batch_size, device, output_dir):
+    """Test all methods on 20 Newsgroups dataset"""
     print("=" * 60)
-    print("TESTING IMDB DATASET")
+    print("TESTING 20 NEWSCROUPS DATASET")
     print("=" * 60)
     
     # Load dataset
-    dataset = IMDBDataset(sample_size=sample_size)
+    dataset = Newsgroups20Dataset(sample_size=sample_size)
     
     # Create data loaders
     train_dataset = torch.utils.data.TensorDataset(dataset.X_train, dataset.y_train)
@@ -319,7 +339,7 @@ def test_imdb_dataset(sample_size, epochs, batch_size, device, output_dir):
                 print(f"  Running {epoch_count} epoch(s)...")
                 
                 # Create model
-                model = MLPClassifier(dataset.n_features, [256, 128], dataset.n_classes).to(device)
+                model = MLPClassifier(dataset.n_features, [512, 256], dataset.n_classes).to(device)
                 
                 # Determine optimizer type
                 if method_name == 'BrachistochroneAdam':
@@ -354,7 +374,7 @@ def test_imdb_dataset(sample_size, epochs, batch_size, device, output_dir):
         else:
             # Single epoch for Brachistochrone methods
             # Create model
-            model = MLPClassifier(dataset.n_features, [256, 128], dataset.n_classes).to(device)
+            model = MLPClassifier(dataset.n_features, [512, 256], dataset.n_classes).to(device)
             
             # Determine optimizer type
             optimizer_type = 'adamw'
@@ -383,8 +403,8 @@ def save_numerical_summary(results, output_dir):
     """Save numerical summary"""
     os.makedirs(output_dir, exist_ok=True)
     
-    with open(os.path.join(output_dir, 'imdb_results.txt'), 'w') as f:
-        f.write("BRACHISTOCHRONE METHOD TEST RESULTS - IMDB DATASET\n")
+    with open(os.path.join(output_dir, '20newsgroups_results.txt'), 'w') as f:
+        f.write("BRACHISTOCHRONE METHOD TEST RESULTS - 20 NEWSCROUPS DATASET\n")
         f.write("=" * 60 + "\n\n")
         
         f.write(f"{'Method':<35} {'Test Acc':<10} {'Test F1':<10} {'Time(s)':<15} {'Epochs':<10}\n")
@@ -427,7 +447,7 @@ def main():
         print(f"GPU: {torch.cuda.get_device_name(0)} ({torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f} GB)")
     
     # Test dataset
-    results = test_imdb_dataset(
+    results = test_20newsgroups_dataset(
         args.sample_size, args.epochs, 
         args.batch_size, device, args.output_dir
     )

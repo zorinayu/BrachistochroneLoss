@@ -35,7 +35,7 @@ def get_args():
     parser.add_argument('--sample_size', type=int, default=5000, help='Sample size for testing')
     parser.add_argument('--epochs', type=int, default=10, help='Number of epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
-    parser.add_argument('--output_dir', type=str, default='outputs/wine', help='Output directory')
+    parser.add_argument('--output_dir', type=str, default='../outputs/wine', help='Output directory')
     return parser.parse_args()
 
 class WineDataset(torch.utils.data.Dataset):

@@ -1,0 +1,32 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - IRIS DATASET
+============================================================
+
+Method                              Test Acc   Test F1    Time(s)         Epochs    
+-------------------------------------------------------------------------------------
+Brachistochrone                     0.0667     0.0494     1.2             1 epoch   
+BrachistochroneAdam_1epochs         0.4667     0.3853     0.0             1 epoch   
+BrachistochroneAdam_2epochs         0.6667     0.5342     0.0             2 epochs  
+BrachistochroneAdam_3epochs         0.3333     0.1667     0.1             3 epochs  
+BrachistochroneSGD_1epochs          0.3333     0.1667     0.1             1 epoch   
+BrachistochroneSGD_2epochs          0.3333     0.1667     0.1             2 epochs  
+BrachistochroneSGD_3epochs          0.3333     0.2222     0.1             3 epochs  
+Adam_1epochs                        0.0000     0.0000     0.0             1 epoch   
+Adam_2epochs                        0.6000     0.4935     0.0             2 epochs  
+Adam_3epochs                        0.3667     0.2408     0.1             3 epochs  
+SGD_1epochs                         0.0333     0.0267     0.0             1 epoch   
+SGD_2epochs                         0.3333     0.1667     0.0             2 epochs  
+SGD_3epochs                         0.3333     0.1667     0.1             3 epochs  
+
+============================================================
+
+BEST PERFORMANCE:
+--------------------
+Best Accuracy: BrachistochroneAdam_2epochs (0.6667)
+Best F1: BrachistochroneAdam_2epochs (0.5342)
+Fastest: Adam_1epochs (0.0s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test Accuracy: 0.0667
+Test F1: 0.0494
+Training Time: 1.2s

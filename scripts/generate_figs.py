@@ -33,6 +33,16 @@ def parse_results(outputs_root: str) -> pd.DataFrame:
         "cifar10": os.path.join(outputs_root, "cifar10", "cifar10_results.txt"),
         "imdb": os.path.join(outputs_root, "imdb", "imdb_results.txt"),
         "wine": os.path.join(outputs_root, "wine", "wine_results.txt"),
+        "iris": os.path.join(outputs_root, "iris", "iris_results.txt"),
+        "breast_cancer": os.path.join(outputs_root, "breast_cancer", "breast_cancer_results.txt"),
+        "mnist": os.path.join(outputs_root, "mnist", "mnist_results.txt"),
+        "fashion_mnist": os.path.join(outputs_root, "fashion_mnist", "fashion_mnist_results.txt"),
+        "agnews": os.path.join(outputs_root, "agnews", "agnews_results.txt"),
+        "20newsgroups": os.path.join(outputs_root, "20newsgroups", "20newsgroups_results.txt"),
+        "cora": os.path.join(outputs_root, "cora", "cora_results.txt"),
+        "air_quality": os.path.join(outputs_root, "air_quality", "air_quality_results.txt"),
+        "electricity": os.path.join(outputs_root, "electricity", "electricity_results.txt"),
+        "movielens": os.path.join(outputs_root, "movielens", "movielens_results.txt"),
     }
     records = []
     for ds, fp in dataset_to_file.items():
@@ -96,7 +106,7 @@ def generate_results_summary_info(best_results: pd.DataFrame, all_results: pd.Da
     info += "-" * 40 + "\n"
     
     for idx, row in best_results.iterrows():
-        dataset = row['dataset'].upper()
+        dataset = str(row['dataset']).upper()
         method = row['method']
         acc = row['acc']
         f1 = row['f1']
@@ -440,7 +450,7 @@ def plot_results_summary(df: pd.DataFrame, out_dirs: list[str]) -> None:
     b2 = ax1.bar(x + width/2, best_results["f1"].values, width, label="F1", color="#f03b20")
     ax1.set_ylabel("Score")
     ax1.set_xticks(x)
-    ax1.set_xticklabels([s.upper() for s in best_results["dataset"].tolist()])
+    ax1.set_xticklabels([str(s).upper() for s in best_results["dataset"].tolist()])
     ax1.set_ylim(0.0, 1.0)
     ax1.legend(ncols=2, frameon=False)
     ax1.grid(axis="y", linestyle=":", alpha=0.4)
@@ -764,7 +774,7 @@ def plot_trajectory_1d(out_dirs: list[str], steps: int = 6, dt: float = 0.2, alp
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--outputs_root", type=str, default=os.path.join(".", "outputs"))
+    parser.add_argument("--outputs_root", type=str, default=os.path.join("..", "outputs"))
     parser.add_argument("--paper_figs", type=str, required=True)
     args = parser.parse_args()
 

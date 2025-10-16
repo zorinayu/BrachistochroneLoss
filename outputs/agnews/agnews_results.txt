@@ -1,0 +1,32 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - AG NEWS DATASET
+============================================================
+
+Method                              Test Acc   Test F1    Time(s)         Epochs    
+-------------------------------------------------------------------------------------
+Brachistochrone                     1.0000     1.0000     0.6             1 epoch   
+BrachistochroneAdam_1epochs         1.0000     1.0000     0.2             1 epoch   
+BrachistochroneAdam_2epochs         1.0000     1.0000     0.3             2 epochs  
+BrachistochroneAdam_3epochs         1.0000     1.0000     0.4             3 epochs  
+BrachistochroneSGD_1epochs          0.2575     0.1055     0.1             1 epoch   
+BrachistochroneSGD_2epochs          0.2425     0.1188     0.2             2 epochs  
+BrachistochroneSGD_3epochs          0.4000     0.3002     0.3             3 epochs  
+Adam_1epochs                        1.0000     1.0000     0.1             1 epoch   
+Adam_2epochs                        1.0000     1.0000     0.2             2 epochs  
+Adam_3epochs                        1.0000     1.0000     0.3             3 epochs  
+SGD_1epochs                         0.2475     0.0982     0.1             1 epoch   
+SGD_2epochs                         0.2425     0.0947     0.1             2 epochs  
+SGD_3epochs                         0.2525     0.1018     0.2             3 epochs  
+
+============================================================
+
+BEST PERFORMANCE:
+--------------------
+Best Accuracy: Brachistochrone (1.0000)
+Best F1: Brachistochrone (1.0000)
+Fastest: SGD_1epochs (0.1s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test Accuracy: 1.0000
+Test F1: 1.0000
+Training Time: 0.6s

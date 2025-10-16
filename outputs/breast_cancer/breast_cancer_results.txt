@@ -1,0 +1,32 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - BREAST CANCER WISCONSIN DATASET
+============================================================
+
+Method                              Test Acc   Test F1    Time(s)         Epochs    
+-------------------------------------------------------------------------------------
+Brachistochrone                     0.9000     0.8974     0.4             1 epoch   
+BrachistochroneAdam_1epochs         0.9000     0.9010     0.0             1 epoch   
+BrachistochroneAdam_2epochs         0.8900     0.8902     0.1             2 epochs  
+BrachistochroneAdam_3epochs         0.9300     0.9290     0.1             3 epochs  
+BrachistochroneSGD_1epochs          0.6100     0.4622     0.1             1 epoch   
+BrachistochroneSGD_2epochs          0.4500     0.3380     0.1             2 epochs  
+BrachistochroneSGD_3epochs          0.3700     0.2268     0.1             3 epochs  
+Adam_1epochs                        0.8100     0.8111     0.0             1 epoch   
+Adam_2epochs                        0.8900     0.8891     0.1             2 epochs  
+Adam_3epochs                        0.9300     0.9294     0.1             3 epochs  
+SGD_1epochs                         0.6100     0.4622     0.0             1 epoch   
+SGD_2epochs                         0.5800     0.4478     0.1             2 epochs  
+SGD_3epochs                         0.3900     0.2188     0.1             3 epochs  
+
+============================================================
+
+BEST PERFORMANCE:
+--------------------
+Best Accuracy: BrachistochroneAdam_3epochs (0.9300)
+Best F1: Adam_3epochs (0.9294)
+Fastest: SGD_1epochs (0.0s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test Accuracy: 0.9000
+Test F1: 0.8974
+Training Time: 0.4s

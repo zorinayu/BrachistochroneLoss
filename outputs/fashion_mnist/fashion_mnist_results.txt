@@ -1,0 +1,32 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - FASHION-MNIST DATASET
+============================================================
+
+Method                              Test Acc   Test F1    Time(s)         Epochs    
+-------------------------------------------------------------------------------------
+Brachistochrone                     0.7390     0.7191     1.0             1 epoch   
+BrachistochroneAdam_1epochs         0.7730     0.7596     0.4             1 epoch   
+BrachistochroneAdam_2epochs         0.7890     0.7661     0.9             2 epochs  
+BrachistochroneAdam_3epochs         0.8210     0.8151     1.6             3 epochs  
+BrachistochroneSGD_1epochs          0.1160     0.0917     0.5             1 epoch   
+BrachistochroneSGD_2epochs          0.1910     0.1437     0.7             2 epochs  
+BrachistochroneSGD_3epochs          0.3190     0.2362     1.1             3 epochs  
+Adam_1epochs                        0.7630     0.7566     0.3             1 epoch   
+Adam_2epochs                        0.8200     0.8091     0.6             2 epochs  
+Adam_3epochs                        0.8020     0.7945     1.2             3 epochs  
+SGD_1epochs                         0.1250     0.0624     0.3             1 epoch   
+SGD_2epochs                         0.3730     0.2713     0.5             2 epochs  
+SGD_3epochs                         0.2740     0.2013     0.9             3 epochs  
+
+============================================================
+
+BEST PERFORMANCE:
+--------------------
+Best Accuracy: BrachistochroneAdam_3epochs (0.8210)
+Best F1: BrachistochroneAdam_3epochs (0.8151)
+Fastest: SGD_1epochs (0.3s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test Accuracy: 0.7390
+Test F1: 0.7191
+Training Time: 1.0s

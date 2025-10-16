@@ -1,0 +1,32 @@
+BRACHISTOCHRONE METHOD TEST RESULTS - CORA DATASET
+============================================================
+
+Method                              Test Acc   Test F1    Time(s)         Epochs    
+-------------------------------------------------------------------------------------
+Brachistochrone                     0.1875     0.1265     0.7             1 epoch   
+BrachistochroneAdam_1epochs         0.1950     0.1477     0.2             1 epoch   
+BrachistochroneAdam_2epochs         0.2375     0.2174     0.3             2 epochs  
+BrachistochroneAdam_3epochs         0.2350     0.2278     0.6             3 epochs  
+BrachistochroneSGD_1epochs          0.1425     0.1038     0.2             1 epoch   
+BrachistochroneSGD_2epochs          0.1500     0.0679     0.3             2 epochs  
+BrachistochroneSGD_3epochs          0.1100     0.0610     0.5             3 epochs  
+Adam_1epochs                        0.1700     0.1391     0.2             1 epoch   
+Adam_2epochs                        0.2225     0.2014     0.3             2 epochs  
+Adam_3epochs                        0.2600     0.2534     0.4             3 epochs  
+SGD_1epochs                         0.1300     0.0916     0.1             1 epoch   
+SGD_2epochs                         0.1525     0.1001     0.2             2 epochs  
+SGD_3epochs                         0.1525     0.1088     0.3             3 epochs  
+
+============================================================
+
+BEST PERFORMANCE:
+--------------------
+Best Accuracy: Adam_3epochs (0.2600)
+Best F1: Adam_3epochs (0.2534)
+Fastest: SGD_1epochs (0.1s)
+
+YOUR BRACHISTOCHRONE METHOD:
+------------------------------
+Test Accuracy: 0.1875
+Test F1: 0.1265
+Training Time: 0.7s

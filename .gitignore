@@ -58,3 +58,6 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+
+# Paper files (not for public display)
+brachistochrone_ai_paper (2).pdf

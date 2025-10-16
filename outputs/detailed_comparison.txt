@@ -234,3 +234,402 @@ WINE DATASET - ALL METHODS:
 
   Best Method: BrachistochroneAdam_2epochs (Acc: 0.9500)
 
+IRIS DATASET - ALL METHODS:
+--------------------------------------------------
+  BrachistochroneAdam_2epochs:
+    Accuracy: 0.5333 (53.33%)
+    F1 Score: 0.4444 (44.44%)
+    Time: 0.100s, Epochs: 2 epochs
+  Brachistochrone:
+    Accuracy: 0.4333 (43.33%)
+    F1 Score: 0.3340 (33.40%)
+    Time: 1.500s, Epochs: 1 epoch
+  BrachistochroneSGD_2epochs:
+    Accuracy: 0.4333 (43.33%)
+    F1 Score: 0.3340 (33.40%)
+    Time: 0.100s, Epochs: 2 epochs
+  BrachistochroneAdam_1epochs:
+    Accuracy: 0.3333 (33.33%)
+    F1 Score: 0.1667 (16.67%)
+    Time: 0.000s, Epochs: 1 epoch
+  BrachistochroneAdam_3epochs:
+    Accuracy: 0.3333 (33.33%)
+    F1 Score: 0.1667 (16.67%)
+    Time: 0.200s, Epochs: 3 epochs
+  BrachistochroneSGD_3epochs:
+    Accuracy: 0.3333 (33.33%)
+    F1 Score: 0.1667 (16.67%)
+    Time: 0.200s, Epochs: 3 epochs
+  Adam_1epochs:
+    Accuracy: 0.3333 (33.33%)
+    F1 Score: 0.1667 (16.67%)
+    Time: 0.000s, Epochs: 1 epoch
+  Adam_3epochs:
+    Accuracy: 0.3333 (33.33%)
+    F1 Score: 0.1667 (16.67%)
+    Time: 0.100s, Epochs: 3 epochs
+  SGD_1epochs:
+    Accuracy: 0.3333 (33.33%)
+    F1 Score: 0.1667 (16.67%)
+    Time: 0.000s, Epochs: 1 epoch
+  SGD_2epochs:
+    Accuracy: 0.3333 (33.33%)
+    F1 Score: 0.1667 (16.67%)
+    Time: 0.100s, Epochs: 2 epochs
+  SGD_3epochs:
+    Accuracy: 0.3333 (33.33%)
+    F1 Score: 0.1667 (16.67%)
+    Time: 0.100s, Epochs: 3 epochs
+  BrachistochroneSGD_1epochs:
+    Accuracy: 0.2667 (26.67%)
+    F1 Score: 0.1404 (14.04%)
+    Time: 0.100s, Epochs: 1 epoch
+  Adam_2epochs:
+    Accuracy: 0.2667 (26.67%)
+    F1 Score: 0.1404 (14.04%)
+    Time: 0.100s, Epochs: 2 epochs
+
+  Best Method: BrachistochroneAdam_2epochs (Acc: 0.5333)
+
+BREAST_CANCER DATASET - ALL METHODS:
+--------------------------------------------------
+  BrachistochroneAdam_3epochs:
+    Accuracy: 0.9300 (93.00%)
+    F1 Score: 0.9290 (92.90%)
+    Time: 0.100s, Epochs: 3 epochs
+  Adam_3epochs:
+    Accuracy: 0.9300 (93.00%)
+    F1 Score: 0.9294 (92.94%)
+    Time: 0.100s, Epochs: 3 epochs
+  Brachistochrone:
+    Accuracy: 0.9000 (90.00%)
+    F1 Score: 0.8974 (89.74%)
+    Time: 0.400s, Epochs: 1 epoch
+  BrachistochroneAdam_1epochs:
+    Accuracy: 0.9000 (90.00%)
+    F1 Score: 0.9010 (90.10%)
+    Time: 0.000s, Epochs: 1 epoch
+  BrachistochroneAdam_2epochs:
+    Accuracy: 0.8900 (89.00%)
+    F1 Score: 0.8902 (89.02%)
+    Time: 0.100s, Epochs: 2 epochs
+  Adam_2epochs:
+    Accuracy: 0.8900 (89.00%)
+    F1 Score: 0.8891 (88.91%)
+    Time: 0.100s, Epochs: 2 epochs
+  Adam_1epochs:
+    Accuracy: 0.8100 (81.00%)
+    F1 Score: 0.8111 (81.11%)
+    Time: 0.000s, Epochs: 1 epoch
+  BrachistochroneSGD_1epochs:
+    Accuracy: 0.6100 (61.00%)
+    F1 Score: 0.4622 (46.22%)
+    Time: 0.100s, Epochs: 1 epoch
+  SGD_1epochs:
+    Accuracy: 0.6100 (61.00%)
+    F1 Score: 0.4622 (46.22%)
+    Time: 0.000s, Epochs: 1 epoch
+  SGD_2epochs:
+    Accuracy: 0.5800 (58.00%)
+    F1 Score: 0.4478 (44.78%)
+    Time: 0.100s, Epochs: 2 epochs
+  BrachistochroneSGD_2epochs:
+    Accuracy: 0.4500 (45.00%)
+    F1 Score: 0.3380 (33.80%)
+    Time: 0.100s, Epochs: 2 epochs
+  SGD_3epochs:
+    Accuracy: 0.3900 (39.00%)
+    F1 Score: 0.2188 (21.88%)
+    Time: 0.100s, Epochs: 3 epochs
+  BrachistochroneSGD_3epochs:
+    Accuracy: 0.3700 (37.00%)
+    F1 Score: 0.2268 (22.68%)
+    Time: 0.100s, Epochs: 3 epochs
+
+  Best Method: BrachistochroneAdam_3epochs (Acc: 0.9300)
+
+MNIST DATASET - ALL METHODS:
+--------------------------------------------------
+  Adam_3epochs:
+    Accuracy: 0.8917 (89.17%)
+    F1 Score: 0.8892 (88.92%)
+    Time: 0.200s, Epochs: 3 epochs
+  BrachistochroneAdam_3epochs:
+    Accuracy: 0.8528 (85.28%)
+    F1 Score: 0.8479 (84.79%)
+    Time: 0.300s, Epochs: 3 epochs
+  BrachistochroneAdam_2epochs:
+    Accuracy: 0.8500 (85.00%)
+    F1 Score: 0.8481 (84.81%)
+    Time: 0.200s, Epochs: 2 epochs
+  Adam_2epochs:
+    Accuracy: 0.8083 (80.83%)
+    F1 Score: 0.7886 (78.86%)
+    Time: 0.100s, Epochs: 2 epochs
+  Adam_1epochs:
+    Accuracy: 0.7778 (77.78%)
+    F1 Score: 0.7661 (76.61%)
+    Time: 0.100s, Epochs: 1 epoch
+  BrachistochroneAdam_1epochs:
+    Accuracy: 0.6500 (65.00%)
+    F1 Score: 0.6380 (63.80%)
+    Time: 0.100s, Epochs: 1 epoch
+  Brachistochrone:
+    Accuracy: 0.5972 (59.72%)
+    F1 Score: 0.5115 (51.15%)
+    Time: 0.500s, Epochs: 1 epoch
+  BrachistochroneSGD_3epochs:
+    Accuracy: 0.1417 (14.17%)
+    F1 Score: 0.0453 (4.53%)
+    Time: 0.300s, Epochs: 3 epochs
+  BrachistochroneSGD_2epochs:
+    Accuracy: 0.1278 (12.78%)
+    F1 Score: 0.0416 (4.16%)
+    Time: 0.200s, Epochs: 2 epochs
+  SGD_3epochs:
+    Accuracy: 0.1139 (11.39%)
+    F1 Score: 0.0379 (3.79%)
+    Time: 0.200s, Epochs: 3 epochs
+  BrachistochroneSGD_1epochs:
+    Accuracy: 0.1111 (11.11%)
+    F1 Score: 0.0344 (3.44%)
+    Time: 0.100s, Epochs: 1 epoch
+  SGD_2epochs:
+    Accuracy: 0.1111 (11.11%)
+    F1 Score: 0.0376 (3.76%)
+    Time: 0.100s, Epochs: 2 epochs
+  SGD_1epochs:
+    Accuracy: 0.1000 (10.00%)
+    F1 Score: 0.0188 (1.88%)
+    Time: 0.100s, Epochs: 1 epoch
+
+  Best Method: Adam_3epochs (Acc: 0.8917)
+
+FASHION_MNIST DATASET - ALL METHODS:
+--------------------------------------------------
+  BrachistochroneAdam_3epochs:
+    Accuracy: 0.8210 (82.10%)
+    F1 Score: 0.8151 (81.51%)
+    Time: 1.600s, Epochs: 3 epochs
+  Adam_2epochs:
+    Accuracy: 0.8200 (82.00%)
+    F1 Score: 0.8091 (80.91%)
+    Time: 0.600s, Epochs: 2 epochs
+  Adam_3epochs:
+    Accuracy: 0.8020 (80.20%)
+    F1 Score: 0.7945 (79.45%)
+    Time: 1.200s, Epochs: 3 epochs
+  BrachistochroneAdam_2epochs:
+    Accuracy: 0.7890 (78.90%)
+    F1 Score: 0.7661 (76.61%)
+    Time: 0.900s, Epochs: 2 epochs
+  BrachistochroneAdam_1epochs:
+    Accuracy: 0.7730 (77.30%)
+    F1 Score: 0.7596 (75.96%)
+    Time: 0.400s, Epochs: 1 epoch
+  Adam_1epochs:
+    Accuracy: 0.7630 (76.30%)
+    F1 Score: 0.7566 (75.66%)
+    Time: 0.300s, Epochs: 1 epoch
+  Brachistochrone:
+    Accuracy: 0.7390 (73.90%)
+    F1 Score: 0.7191 (71.91%)
+    Time: 1.000s, Epochs: 1 epoch
+  SGD_2epochs:
+    Accuracy: 0.3730 (37.30%)
+    F1 Score: 0.2713 (27.13%)
+    Time: 0.500s, Epochs: 2 epochs
+  BrachistochroneSGD_3epochs:
+    Accuracy: 0.3190 (31.90%)
+    F1 Score: 0.2362 (23.62%)
+    Time: 1.100s, Epochs: 3 epochs
+  SGD_3epochs:
+    Accuracy: 0.2740 (27.40%)
+    F1 Score: 0.2013 (20.13%)
+    Time: 0.900s, Epochs: 3 epochs
+  BrachistochroneSGD_2epochs:
+    Accuracy: 0.1910 (19.10%)
+    F1 Score: 0.1437 (14.37%)
+    Time: 0.700s, Epochs: 2 epochs
+  SGD_1epochs:
+    Accuracy: 0.1250 (12.50%)
+    F1 Score: 0.0624 (6.24%)
+    Time: 0.300s, Epochs: 1 epoch
+  BrachistochroneSGD_1epochs:
+    Accuracy: 0.1160 (11.60%)
+    F1 Score: 0.0917 (9.17%)
+    Time: 0.500s, Epochs: 1 epoch
+
+  Best Method: BrachistochroneAdam_3epochs (Acc: 0.8210)
+
+AGNEWS DATASET - ALL METHODS:
+--------------------------------------------------
+  Brachistochrone:
+    Accuracy: 1.0000 (100.00%)
+    F1 Score: 1.0000 (100.00%)
+    Time: 0.600s, Epochs: 1 epoch
+  BrachistochroneAdam_1epochs:
+    Accuracy: 1.0000 (100.00%)
+    F1 Score: 1.0000 (100.00%)
+    Time: 0.200s, Epochs: 1 epoch
+  BrachistochroneAdam_2epochs:
+    Accuracy: 1.0000 (100.00%)
+    F1 Score: 1.0000 (100.00%)
+    Time: 0.300s, Epochs: 2 epochs
+  BrachistochroneAdam_3epochs:
+    Accuracy: 1.0000 (100.00%)
+    F1 Score: 1.0000 (100.00%)
+    Time: 0.400s, Epochs: 3 epochs
+  Adam_1epochs:
+    Accuracy: 1.0000 (100.00%)
+    F1 Score: 1.0000 (100.00%)
+    Time: 0.100s, Epochs: 1 epoch
+  Adam_2epochs:
+    Accuracy: 1.0000 (100.00%)
+    F1 Score: 1.0000 (100.00%)
+    Time: 0.200s, Epochs: 2 epochs
+  Adam_3epochs:
+    Accuracy: 1.0000 (100.00%)
+    F1 Score: 1.0000 (100.00%)
+    Time: 0.300s, Epochs: 3 epochs
+  BrachistochroneSGD_3epochs:
+    Accuracy: 0.4000 (40.00%)
+    F1 Score: 0.3002 (30.02%)
+    Time: 0.300s, Epochs: 3 epochs
+  BrachistochroneSGD_1epochs:
+    Accuracy: 0.2575 (25.75%)
+    F1 Score: 0.1055 (10.55%)
+    Time: 0.100s, Epochs: 1 epoch
+  SGD_3epochs:
+    Accuracy: 0.2525 (25.25%)
+    F1 Score: 0.1018 (10.18%)
+    Time: 0.200s, Epochs: 3 epochs
+  SGD_1epochs:
+    Accuracy: 0.2475 (24.75%)
+    F1 Score: 0.0982 (9.82%)
+    Time: 0.100s, Epochs: 1 epoch
+  BrachistochroneSGD_2epochs:
+    Accuracy: 0.2425 (24.25%)
+    F1 Score: 0.1188 (11.88%)
+    Time: 0.200s, Epochs: 2 epochs
+  SGD_2epochs:
+    Accuracy: 0.2425 (24.25%)
+    F1 Score: 0.0947 (9.47%)
+    Time: 0.100s, Epochs: 2 epochs
+
+  Best Method: Brachistochrone (Acc: 1.0000)
+
+20NEWSGROUPS DATASET - ALL METHODS:
+--------------------------------------------------
+  Brachistochrone:
+    Accuracy: 0.3275 (32.75%)
+    F1 Score: 0.2932 (29.32%)
+    Time: 1.100s, Epochs: 1 epoch
+  Adam_3epochs:
+    Accuracy: 0.2775 (27.75%)
+    F1 Score: 0.2193 (21.93%)
+    Time: 0.400s, Epochs: 3 epochs
+  BrachistochroneAdam_1epochs:
+    Accuracy: 0.2600 (26.00%)
+    F1 Score: 0.2498 (24.98%)
+    Time: 0.100s, Epochs: 1 epoch
+  BrachistochroneAdam_2epochs:
+    Accuracy: 0.2500 (25.00%)
+    F1 Score: 0.2088 (20.88%)
+    Time: 0.300s, Epochs: 2 epochs
+  BrachistochroneAdam_3epochs:
+    Accuracy: 0.2025 (20.25%)
+    F1 Score: 0.1151 (11.51%)
+    Time: 0.400s, Epochs: 3 epochs
+  Adam_2epochs:
+    Accuracy: 0.1425 (14.25%)
+    F1 Score: 0.0845 (8.45%)
+    Time: 0.300s, Epochs: 2 epochs
+  Adam_1epochs:
+    Accuracy: 0.0825 (8.25%)
+    F1 Score: 0.0348 (3.48%)
+    Time: 0.100s, Epochs: 1 epoch
+  BrachistochroneSGD_1epochs:
+    Accuracy: 0.0600 (6.00%)
+    F1 Score: 0.0136 (1.36%)
+    Time: 0.200s, Epochs: 1 epoch
+  BrachistochroneSGD_3epochs:
+    Accuracy: 0.0600 (6.00%)
+    F1 Score: 0.0174 (1.74%)
+    Time: 0.400s, Epochs: 3 epochs
+  SGD_3epochs:
+    Accuracy: 0.0575 (5.75%)
+    F1 Score: 0.0105 (1.05%)
+    Time: 0.400s, Epochs: 3 epochs
+  BrachistochroneSGD_2epochs:
+    Accuracy: 0.0550 (5.50%)
+    F1 Score: 0.0057 (0.57%)
+    Time: 0.300s, Epochs: 2 epochs
+  SGD_2epochs:
+    Accuracy: 0.0525 (5.25%)
+    F1 Score: 0.0052 (0.52%)
+    Time: 0.200s, Epochs: 2 epochs
+  SGD_1epochs:
+    Accuracy: 0.0500 (5.00%)
+    F1 Score: 0.0048 (0.48%)
+    Time: 0.100s, Epochs: 1 epoch
+
+  Best Method: Brachistochrone (Acc: 0.3275)
+
+CORA DATASET - ALL METHODS:
+--------------------------------------------------
+  Adam_3epochs:
+    Accuracy: 0.2600 (26.00%)
+    F1 Score: 0.2534 (25.34%)
+    Time: 0.400s, Epochs: 3 epochs
+  BrachistochroneAdam_2epochs:
+    Accuracy: 0.2375 (23.75%)
+    F1 Score: 0.2174 (21.74%)
+    Time: 0.300s, Epochs: 2 epochs
+  BrachistochroneAdam_3epochs:
+    Accuracy: 0.2350 (23.50%)
+    F1 Score: 0.2278 (22.78%)
+    Time: 0.600s, Epochs: 3 epochs
+  Adam_2epochs:
+    Accuracy: 0.2225 (22.25%)
+    F1 Score: 0.2014 (20.14%)
+    Time: 0.300s, Epochs: 2 epochs
+  BrachistochroneAdam_1epochs:
+    Accuracy: 0.1950 (19.50%)
+    F1 Score: 0.1477 (14.77%)
+    Time: 0.200s, Epochs: 1 epoch
+  Brachistochrone:
+    Accuracy: 0.1875 (18.75%)
+    F1 Score: 0.1265 (12.65%)
+    Time: 0.700s, Epochs: 1 epoch
+  Adam_1epochs:
+    Accuracy: 0.1700 (17.00%)
+    F1 Score: 0.1391 (13.91%)
+    Time: 0.200s, Epochs: 1 epoch
+  SGD_2epochs:
+    Accuracy: 0.1525 (15.25%)
+    F1 Score: 0.1001 (10.01%)
+    Time: 0.200s, Epochs: 2 epochs
+  SGD_3epochs:
+    Accuracy: 0.1525 (15.25%)
+    F1 Score: 0.1088 (10.88%)
+    Time: 0.300s, Epochs: 3 epochs
+  BrachistochroneSGD_2epochs:
+    Accuracy: 0.1500 (15.00%)
+    F1 Score: 0.0679 (6.79%)
+    Time: 0.300s, Epochs: 2 epochs
+  BrachistochroneSGD_1epochs:
+    Accuracy: 0.1425 (14.25%)
+    F1 Score: 0.1038 (10.38%)
+    Time: 0.200s, Epochs: 1 epoch
+  SGD_1epochs:
+    Accuracy: 0.1300 (13.00%)
+    F1 Score: 0.0916 (9.16%)
+    Time: 0.100s, Epochs: 1 epoch
+  BrachistochroneSGD_3epochs:
+    Accuracy: 0.1100 (11.00%)
+    F1 Score: 0.0610 (6.10%)
+    Time: 0.500s, Epochs: 3 epochs
+
+  Best Method: Adam_3epochs (Acc: 0.2600)
+

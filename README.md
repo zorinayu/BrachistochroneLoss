@@ -58,41 +58,108 @@ for batch in dataloader:
 The repository includes comprehensive tests on multiple real-world datasets:
 
 ```bash
-# Credit Card Fraud Detection
-python test_creditcard.py --sample_size 5000 --epochs 10
+# Iris Dataset (Classification)
+python scripts/test_iris.py --sample_size 150 --epochs 3 --batch_size 32
 
-# NSL-KDD Network Security
-python test_nslkdd.py --sample_size 5000 --epochs 10
+# Breast Cancer Wisconsin (Classification)
+python scripts/test_breast_cancer.py --sample_size 500 --epochs 3 --batch_size 32
 
-# Sleep Stage Classification
-python test_sleepedfx.py --sample_size 2000 --epochs 10
+# MNIST (Image Classification)
+python scripts/test_mnist.py --sample_size 5000 --epochs 3 --batch_size 64
 
-# MIT-BIH Arrhythmia Detection
-python test_mitbih.py --sample_size 2000 --epochs 10
+# Fashion-MNIST (Image Classification)
+python scripts/test_fashion_mnist.py --sample_size 5000 --epochs 3 --batch_size 64
 
-# Combined HAR and Credit Card tests
-python test_real_datasets_v2.py --sample_size 5000 --epochs 10
+# AG News (Text Classification)
+python scripts/test_agnews.py --sample_size 2000 --epochs 3 --batch_size 64
+
+# Adult Income (Classification)
+python scripts/test_adult.py --sample_size 5000 --epochs 10 --batch_size 64
+
+# Wine Quality (Classification)
+python scripts/test_wine.py --sample_size 5000 --epochs 10 --batch_size 64
+
+# CIFAR-10 (Image Classification)
+python scripts/test_cifar10.py --sample_size 5000 --epochs 10 --batch_size 64
+
+# IMDB Movie Reviews (Text Classification)
+python scripts/test_imdb.py --sample_size 5000 --epochs 10 --batch_size 64
+
+# 20 Newsgroups (Text Classification)
+python scripts/test_20newsgroups.py --sample_size 2000 --epochs 3 --batch_size 64
+
+# Cora (Paper Classification)
+python scripts/test_cora.py --sample_size 2000 --epochs 3 --batch_size 64
+
+# Air Quality (Regression)
+python scripts/test_air_quality.py --sample_size 2000 --epochs 3 --batch_size 64
+
+# Electricity Load Diagrams (Regression)
+python scripts/test_electricity.py --sample_size 2000 --epochs 3 --batch_size 64
+
+# MovieLens (Rating Prediction)
+python scripts/test_movielens.py --sample_size 2000 --epochs 3 --batch_size 64
 ```
 
 ## Results
 
 The BRACHISTOCHRONE method has been tested on multiple datasets with the following results:
 
-### Credit Card Fraud Detection
-- **Brachistochrone**: 99.90% accuracy, 99.85% F1-score
-- **Best baseline**: AdamW (99.90% accuracy, 99.85% F1-score)
+### Iris Dataset (Classification)
+- **Brachistochrone**: 33.33% accuracy, 16.67% F1-score
+- **Best method**: BrachistochroneSGD (66.67% accuracy, 55.56% F1-score)
 
-### NSL-KDD Network Security
-- **Brachistochrone**: 88.50% accuracy, 84.54% F1-score
-- **Best baseline**: AdamW (88.60% accuracy, 84.86% F1-score)
+### Breast Cancer Wisconsin (Classification)
+- **Brachistochrone**: 90.00% accuracy, 89.74% F1-score
+- **Best method**: BrachistochroneAdam (93.00% accuracy, 92.90% F1-score)
 
-### Sleep Stage Classification
-- **Brachistochrone**: 71.00% accuracy, 70.66% F1-score
-- **Best baseline**: SGD (70.50% accuracy, 70.10% F1-score)
+### MNIST (Image Classification)
+- **Brachistochrone**: 59.72% accuracy, 51.15% F1-score
+- **Best method**: Adam (89.17% accuracy, 88.92% F1-score)
 
-### MIT-BIH Arrhythmia Detection
+### Fashion-MNIST (Image Classification)
+- **Brachistochrone**: 73.90% accuracy, 71.91% F1-score
+- **Best method**: BrachistochroneAdam (82.10% accuracy, 81.51% F1-score)
+
+### AG News (Text Classification)
 - **Brachistochrone**: 100.00% accuracy, 100.00% F1-score
 - **All methods**: Achieved perfect performance on this dataset
+
+### 20 Newsgroups (Text Classification)
+- **Brachistochrone**: 32.75% accuracy, 29.32% F1-score
+- **Best method**: Brachistochrone (32.75% accuracy, 29.32% F1-score)
+
+### Cora (Paper Classification)
+- **Brachistochrone**: 18.75% accuracy, 12.65% F1-score
+- **Best method**: Adam (26.00% accuracy, 25.34% F1-score)
+
+### Air Quality (Regression)
+- **Brachistochrone**: MSE=0.8012, MAE=0.7077, R²=0.3175
+- **Best method**: Adam (MSE=0.0836, MAE=0.2301, R²=0.9288)
+
+### Electricity Load (Regression)
+- **Brachistochrone**: MSE=1.0052, MAE=0.8035, R²=0.0938
+- **Best method**: Adam (MSE=0.6881, MAE=0.6605, R²=0.3796)
+
+### MovieLens (Rating Prediction)
+- **Brachistochrone**: MSE=1.1340, MAE=0.8616, R²=-0.0009
+- **Best method**: Brachistochrone (MSE=1.1340, MAE=0.8616, R²=-0.0009)
+
+### Adult Income (Classification)
+- **Brachistochrone**: Results available in outputs/adult/
+- **Best method**: See detailed results in adult_results.txt
+
+### Wine Quality (Classification)
+- **Brachistochrone**: Results available in outputs/wine/
+- **Best method**: See detailed results in wine_results.txt
+
+### CIFAR-10 (Image Classification)
+- **Brachistochrone**: Results available in outputs/cifar10/
+- **Best method**: See detailed results in cifar10_results.txt
+
+### IMDB Movie Reviews (Text Classification)
+- **Brachistochrone**: Results available in outputs/imdb/
+- **Best method**: See detailed results in imdb_results.txt
 
 ## Method Variants
 
@@ -107,24 +174,43 @@ The repository includes several variants of the BRACHISTOCHRONE method:
 
 ```
 src/
-├── brachlearn/
-│   ├── losses/
-│   │   └── brachistochrone.py    # Main loss implementation
-│   ├── models/
-│   │   └── mlp.py                # MLP classifier
-│   └── utils/
-│       └── stft.py               # STFT utilities
-├── test_*.py                     # Dataset-specific tests
+├── losses/
+│   ├── brachistochrone.py        # Main loss implementation
+│   └── brachistochrone_pro.py    # Improved loss variants
+├── models/
+│   └── mlp.py                    # MLP classifier
+├── scripts/
+│   ├── test_*.py                 # Dataset-specific tests
+│   └── generate_figs.py          # Generate result figures
 └── outputs/                      # Test results
+    ├── iris/
+    ├── breast_cancer/
+    ├── mnist/
+    ├── fashion_mnist/
+    ├── agnews/
+    ├── 20newsgroups/
+    ├── cora/
+    ├── air_quality/
+    ├── electricity/
+    ├── movielens/
+    ├── adult/
+    ├── wine/
+    ├── cifar10/
+    └── imdb/
 ```
 
 ## Key Features
 
 - **GPU Acceleration**: Supports CUDA-enabled PyTorch
-- **Multiple Datasets**: Tested on 5+ real-world datasets
+- **Multiple Datasets**: Tested on 14+ real-world datasets including:
+  - Image classification (MNIST, Fashion-MNIST, CIFAR-10)
+  - Text classification (AG News, IMDB, 20 Newsgroups)
+  - Tabular data (Iris, Breast Cancer, Adult Income, Wine Quality, Cora)
+  - Regression tasks (Air Quality, Electricity Load, MovieLens, Boston Housing)
 - **Comprehensive Evaluation**: Accuracy, F1-score, and training time metrics
 - **Modular Design**: Easy to integrate with existing PyTorch workflows
-- **Extensive Testing**: 7 different method variants tested
+- **Extensive Testing**: Multiple method variants tested (Brachistochrone, BrachistochroneAdam, BrachistochroneSGD, Adam, SGD)
+- **Automatic Result Generation**: Scripts generate detailed results and figures
 
 ## Requirements
 
